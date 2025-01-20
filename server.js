@@ -4,9 +4,12 @@ import authRoutes from "./routes/authRoutes.js";
 import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import dbConnect from "./utilities/db.js";
 
 const app = express();
 const port = process.env.PORT;
+
+dbConnect();
 
 app.use(
   cors({
@@ -34,5 +37,5 @@ app.get("/contact", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}:`);
+  console.log(`Server running on port ${port}`);
 });
