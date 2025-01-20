@@ -6,7 +6,7 @@ const dbConnect = async () => {
     await mongoose.connect(process.env.DB_URL, { useNewURLParser: true });
     console.log(`Database connected at ${process.env.DB_URL}`);
   } catch (error) {
-    console.log("Database Connection Error", error.message);
+    console.log("Database Connection Error: ", error.message);
   }
 };
 
