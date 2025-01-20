@@ -3,7 +3,7 @@ import "dotenv/config";
 
 const dbConnect = async () => {
   try {
-    await mongoose.connect(process.env.DB_URL, { useNewURLParser: true });
+    await mongoose.connect(process.env.DB_URL);
     console.log(`Database connected at ${process.env.DB_URL}`);
   } catch (error) {
     console.log("Database Connection Error: ", error.message);
