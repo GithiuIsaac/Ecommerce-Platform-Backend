@@ -1,5 +1,6 @@
 import adminModel from "../models/adminModel.js";
 import sellerModel from "../models/sellerModel.js";
+import sellerCustomerModel from "../models/chat/sellerCustomerModel.js";
 import { responseReturn } from "../utilities/response.js";
 import { createToken } from "../utilities/tokenCreate.js";
 import bcrypt from "bcrypt";
@@ -70,14 +71,29 @@ class authControllers {
           method: "manual",
           sellerInfo: {},
         });
+        // Confirm created seller
         console.log(seller);
-        responseReturn(res, 201, {
-          message: "Registration successful",
-          seller,
+        await sellerCustomerModel.create({
+          sellerId: seller.id,
         });
+        // generate token
+        const token = await createToken({
+          id: seller.id,
+          role: seller.role,
+        });
+
+        // Create access cookie
+        res.cookie("accessToken", token, {
+          expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day
+          // expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        });
+
+        responseReturn(res, 201, { token, message: "Registration successful" });
       }
     } catch (error) {
+      // Confirm error message
       console.log(error);
+      responseReturn(res, 500, { error: "Internal Server Error" });
     }
   };
 
