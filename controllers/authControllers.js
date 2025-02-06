@@ -47,6 +47,51 @@ class authControllers {
     // console.log(req.body);
   };
 
+  seller_login = async (req, res) => {
+    // Confirm the data received from the frontend
+    // console.log(req.body);
+
+    // Destructure the received data
+    const { email, password } = req.body;
+    try {
+      const seller = await sellerModel.findOne({ email }).select("+password");
+      console.log(seller);
+      if (seller) {
+        // Check if the seller email exists
+        // Once email is found, check if the password is correct
+        const isPasswordMatch = await bcrypt.compare(password, seller.password);
+        // console.log(isPasswordMatch);
+
+        if (isPasswordMatch) {
+          // If password is correct, generate token & return success message
+          const token = await createToken({
+            id: seller.id,
+            role: seller.role,
+          });
+
+          // Create access cookie
+          res.cookie("accessToken", token, {
+            expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day
+            // expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+          });
+          responseReturn(res, 200, {
+            token,
+            message: "Login successful",
+          });
+        } else {
+          // If incorrect password, return error message
+          responseReturn(res, 401, { error: "Wrong password" });
+        }
+      } else {
+        // If user does not exist, return error message
+        responseReturn(res, 404, { error: "Email not found" });
+      }
+    } catch (error) {
+      responseReturn(res, 500, { error: error.message });
+    }
+    // console.log(req.body);
+  };
+
   seller_register = async (req, res) => {
     // Confirm the data received from the frontend
     // console.log(req.body);
