@@ -9,6 +9,7 @@ const router = Router();
 // });
 
 router.post("/admin-login", authControllers.admin_login);
+router.post("/seller-login", authControllers.seller_login);
 router.get("/get-user", authMiddleware, authControllers.get_user);
 router.post("/seller-register", authControllers.seller_register);
 export default router;
