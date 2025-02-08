@@ -1,6 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import authRoutes from "./routes/authRoutes.js";
+import categoryRoutes from "./routes/dashboard/categoryRoutes.js";
 import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -23,6 +24,7 @@ app.use(cookieParser());
 
 // app.use with the ES6 import format, not the CommonJS one
 app.use("/api", authRoutes);
+app.use("/api", categoryRoutes);
 
 app.get("/", (req, res) => {
   res.send("This is the backend server");
