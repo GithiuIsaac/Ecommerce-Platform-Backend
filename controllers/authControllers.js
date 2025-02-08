@@ -55,7 +55,7 @@ class authControllers {
     const { email, password } = req.body;
     try {
       const seller = await sellerModel.findOne({ email }).select("+password");
-      console.log(seller);
+      // console.log(seller);
       if (seller) {
         // Check if the seller email exists
         // Once email is found, check if the password is correct
@@ -146,16 +146,18 @@ class authControllers {
     const { id, role } = req;
     try {
       if (role === "admin") {
-        // Display if admin
-        const user = await adminModel.findById(id);
-        responseReturn(res, 200, { userInfo: user });
+        // If admin, fetch the user info from the adminModel
+        const admin = await adminModel.findById(id);
+        responseReturn(res, 200, { userInfo: admin });
       } else {
-        // Display if user/seller
-        console.log("Seller Information");
+        // If seller, fetch the user info from the sellerModel
+        const seller = await sellerModel.findById(id);
+        responseReturn(res, 200, { userInfo: seller });
       }
     } catch (error) {
       console.log(error.message);
-      // responseReturn(res, 500, { error: error.message });
+      responseReturn(res, 500, { error: error.message });
+      // responseReturn(res, 500, { error: "Internal Server Error" });
     }
   };
 }
