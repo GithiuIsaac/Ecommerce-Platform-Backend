@@ -56,6 +56,44 @@ class categoryControllers {
   get_category = async (req, res) => {
     // Retrieve the category data from the DB
     console.log("Fetching categories from the DB...");
+    console.log(req.query);
+    const { page, searchValue, perPage } = req.query;
+    const skipPage = parseInt(perPage) * (parseInt(page) - 1);
+
+    try {
+      if (searchValue) {
+        // Fetch categories from categories table
+        const categories = await categoryModel
+          .find({
+            $text: { $search: searchValue },
+          })
+          .skip(skipPage)
+          .limit(perPage)
+          .sort({ createdAt: -1 });
+
+        // Return the total number of categories
+        const totalCategories = await categoryModel
+          .find({
+            $text: { $search: searchValue },
+          })
+          .countDocuments();
+        responseReturn(res, 200, {
+          categories,
+          totalCategories,
+        });
+      } else {
+        const categories = await categoryModel
+          .find({})
+          .skip(skipPage)
+          .limit(perPage)
+          .sort({ createdAt: -1 });
+        const totalCategories = await categoryModel.find({}).countDocuments();
+        responseReturn(res, 200, {
+          categories,
+          totalCategories,
+        });
+      }
+    } catch (error) {}
   };
 }
 export default new categoryControllers();
