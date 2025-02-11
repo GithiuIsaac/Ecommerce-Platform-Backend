@@ -58,9 +58,13 @@ class categoryControllers {
     console.log("Fetching categories from the DB...");
     console.log(req.query);
     const { page, searchValue, perPage } = req.query;
-    const skipPage = parseInt(perPage) * (parseInt(page) - 1);
+    // const skipPage = parseInt(perPage) * (parseInt(page) - 1);
 
     try {
+      let skipPage = "";
+      if (page && perPage) {
+        skipPage = parseInt(perPage) * (parseInt(page) - 1);
+      }
       if (searchValue && page && perPage) {
         // Fetch categories from categories table
         const categories = await categoryModel
