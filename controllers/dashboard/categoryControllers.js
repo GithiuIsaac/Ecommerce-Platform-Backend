@@ -61,7 +61,7 @@ class categoryControllers {
     const skipPage = parseInt(perPage) * (parseInt(page) - 1);
 
     try {
-      if (searchValue) {
+      if (searchValue && page && perPage) {
         // Fetch categories from categories table
         const categories = await categoryModel
           .find({
@@ -77,23 +77,39 @@ class categoryControllers {
             $text: { $search: searchValue },
           })
           .countDocuments();
+
         responseReturn(res, 200, {
           categories,
           totalCategories,
         });
-      } else {
+      } else if (searchValue === "" && page && perPage) {
+        // Fetch categories from categories table
         const categories = await categoryModel
           .find({})
           .skip(skipPage)
           .limit(perPage)
           .sort({ createdAt: -1 });
+
+        // Return the total number of categories
         const totalCategories = await categoryModel.find({}).countDocuments();
+
+        responseReturn(res, 200, {
+          categories,
+          totalCategories,
+        });
+      } else {
+        // Return all categories data in the categories section
+        const categories = await categoryModel.find({}).sort({ createdAt: -1 });
+        const totalCategories = await categoryModel.find({}).countDocuments();
+
         responseReturn(res, 200, {
           categories,
           totalCategories,
         });
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 }
 export default new categoryControllers();
