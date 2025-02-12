@@ -1,67 +1,89 @@
 import formidable from "formidable";
-// import productModel from "../../models/productModel.js";
+import productModel from "../../models/productModel.js";
 import { responseReturn } from "../../utilities/response.js";
 import { v2 as cloudinary } from "cloudinary";
 
 class productControllers {
   add_product = async (req, res) => {
-    console.log("Adding a new product...");
+    const { id } = req;
+    console.log("Adding a new product by...", id);
     const form = formidable({ multiples: true });
 
     form.parse(req, async (err, fields, files) => {
-      console.log(files);
-      console.log(fields);
+      if (err) {
+        responseReturn(res, 404, { error: "Sonething went wrong" });
+      } else {
+        // Process all fields to get the first element and trim it
+        const processField = (field) =>
+          Array.isArray(field) ? field[0].trim() : field.trim();
 
-      let { product_name } = fields;
-      let { images } = files;
-      console.log(product_name);
-      console.log(images[0]);
+        const product_name = processField(fields.product_name);
+        const category = processField(fields.category);
+        const description = processField(fields.description);
+        const stock = processField(fields.stock);
+        const price = processField(fields.price);
+        const discount = processField(fields.discount);
+        const seller_name = processField(fields.seller_name);
+        const brand = processField(fields.brand);
+
+        const { images } = files;
+        // Log the values to determine the structure
+        // console.log(fields);
+        // console.log(images[0]);
+
+        const slug = product_name.split(" ").join("-").toLowerCase();
+
+        cloudinary.config({
+          cloud_name: process.env.cloud_name,
+          api_key: process.env.api_key,
+          api_secret: process.env.api_secret,
+          secure: true,
+        });
+
+        try {
+          console.log("Trying to upload the product images...");
+          let allImageUrls = [];
+
+          for (let i = 0; i < images.length; i++) {
+            const result = await cloudinary.uploader.upload(
+              images[i].filepath,
+              {
+                folder: "products",
+              }
+            );
+            allImageUrls = [...allImageUrls, result.secure_url];
+          }
+
+          console.log("Product images uploaded successfully.", allImageUrls);
+
+          console.log("Adding product data to DB...");
+          const product = await productModel.create({
+            sellerId: id,
+            product_name,
+            slug,
+            category,
+            description,
+            stock: parseInt(stock),
+            price: parseInt(price),
+            discount: parseInt(discount),
+            seller_name,
+            brand: brand,
+            images: allImageUrls,
+          });
+          // .maxTimeMS(30000);
+
+          console.log("New product added successfully.");
+          responseReturn(res, 201, {
+            message: "Product added successfully",
+            product,
+          });
+        } catch (error) {
+          console.error("Error adding product:", error);
+          responseReturn(res, 500, { error: error.message });
+          // responseReturn(res, 500, { error: error });
+        }
+      }
     });
-    // form.parse(req, async (err, fields, files) => {
-    //   if (err) {
-    //     responseReturn(res, 404, { error: "Sonething went wrong" });
-    //   } else {
-    //     let { product_name } = fields;
-    //     let { image } = files;
-    //     product_name = product_name[0].trim();
-    //     if (Array.isArray(files.image)) {
-    //       image = image[0];
-    //     }
-    //     if (!image || !image.filepath) {
-    //       return responseReturn(res, 400, { error: "Image file is required" });
-    //     }
-    //     const slug = product_name.split(" ").join("-").toLowerCase();
-
-    //     cloudinary.config({
-    //       cloud_name: process.env.cloud_name,
-    //       api_key: process.env.api_key,
-    //       api_secret: process.env.api_secret,
-    //       secure: true,
-    //     });
-
-    //     try {
-    //       console.log("Trying to upload the image...");
-    //       const result = await cloudinary.uploader.upload(image.filepath, {
-    //         folder: "categories",
-    //       });
-    //       if (result) {
-    //         const product = await productModel.create({
-    //           product_name,
-    //           slug,
-    //           image: result.secure_url,
-    //         });
-    //         responseReturn(res, 201, {
-    //           message: "product added successfully",
-    //           product,
-    //         });
-    //       } else {
-    //         responseReturn(res, 400, { error: "Image upload failed" });
-    //       }
-    //     } catch (error) {
-    //       responseReturn(res, 500, { error: "Internal Server Error" });
-    //     }
-    //   }
-    // });
   };
 
   get_product = async (req, res) => {
