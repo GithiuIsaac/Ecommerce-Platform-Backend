@@ -86,67 +86,67 @@ class productControllers {
     });
   };
 
-  get_product = async (req, res) => {
+  get_products = async (req, res) => {
     // Retrieve the product data from the DB
     console.log("Fetching products from the DB...");
     console.log(req.query);
-    // const { page, searchValue, perPage } = req.query;
+    const { page, searchValue, perPage } = req.query;
     // // const skipPage = parseInt(perPage) * (parseInt(page) - 1);
 
-    // try {
-    //   let skipPage = "";
-    //   if (page && perPage) {
-    //     skipPage = parseInt(perPage) * (parseInt(page) - 1);
-    //   }
-    //   if (searchValue && page && perPage) {
-    //     // Fetch categories from categories table
-    //     const categories = await productModel
-    //       .find({
-    //         $text: { $search: searchValue },
-    //       })
-    //       .skip(skipPage)
-    //       .limit(perPage)
-    //       .sort({ createdAt: -1 });
+    try {
+      let skipPage = "";
+      if (page && perPage) {
+        skipPage = parseInt(perPage) * (parseInt(page) - 1);
+      }
+      if (searchValue && page && perPage) {
+        // Fetch products from products table
+        const products = await productModel
+          .find({
+            $text: { $search: searchValue },
+          })
+          .skip(skipPage)
+          .limit(perPage)
+          .sort({ createdAt: -1 });
 
-    //     // Return the total number of categories
-    //     const totalCategories = await productModel
-    //       .find({
-    //         $text: { $search: searchValue },
-    //       })
-    //       .countDocuments();
+        // Return the total number of products
+        const totalProducts = await productModel
+          .find({
+            $text: { $search: searchValue },
+          })
+          .countDocuments();
 
-    //     responseReturn(res, 200, {
-    //       categories,
-    //       totalCategories,
-    //     });
-    //   } else if (searchValue === "" && page && perPage) {
-    //     // Fetch categories from categories table
-    //     const categories = await productModel
-    //       .find({})
-    //       .skip(skipPage)
-    //       .limit(perPage)
-    //       .sort({ createdAt: -1 });
+        responseReturn(res, 200, {
+          products,
+          totalProducts,
+        });
+      } else if (searchValue === "" && page && perPage) {
+        // Fetch products from products table
+        const products = await productModel
+          .find({})
+          .skip(skipPage)
+          .limit(perPage)
+          .sort({ createdAt: -1 });
 
-    //     // Return the total number of categories
-    //     const totalCategories = await productModel.find({}).countDocuments();
+        // Return the total number of products
+        const totalProducts = await productModel.find({}).countDocuments();
 
-    //     responseReturn(res, 200, {
-    //       categories,
-    //       totalCategories,
-    //     });
-    //   } else {
-    //     // Return all categories data in the categories section
-    //     const categories = await productModel.find({}).sort({ createdAt: -1 });
-    //     const totalCategories = await productModel.find({}).countDocuments();
+        responseReturn(res, 200, {
+          products,
+          totalProducts,
+        });
+      } else {
+        // Return all products data in the products section
+        const products = await productModel.find({}).sort({ createdAt: -1 });
+        const totalProducts = await productModel.find({}).countDocuments();
 
-    //     responseReturn(res, 200, {
-    //       categories,
-    //       totalCategories,
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.log(error.message);
-    // }
+        responseReturn(res, 200, {
+          products,
+          totalProducts,
+        });
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 }
 export default new productControllers();
