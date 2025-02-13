@@ -161,15 +161,19 @@ class productControllers {
   };
 
   get_product = async (req, res) => {
-    console.log(req);
-    // const { id } = req.params;
-    // console.log("Fetching a product by id...", id);
-    // try {
-    //   const product = await productModel.findOne({ _id });
-    //   responseReturn(res, 200, { product });
-    // } catch (error) {
-    //   console.log(error.message);
-    // }
+    console.log(req.params);
+    const { productId } = req.params;
+
+    console.log("Fetching product by id...", productId);
+
+    try {
+      const product = await productModel.findById(productId);
+      console.log(product);
+      responseReturn(res, 200, { product });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 404, { error: "Product not found" });
+    }
   };
 }
 export default new productControllers();
