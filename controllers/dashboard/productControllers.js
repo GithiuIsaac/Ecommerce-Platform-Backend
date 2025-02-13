@@ -91,6 +91,9 @@ class productControllers {
     console.log("Fetching products from the DB...");
     console.log(req.query);
     const { page, searchValue, perPage } = req.query;
+
+    // Ideally, a seller should only be able to access their products, and thus the seller id
+    const { id } = req;
     // // const skipPage = parseInt(perPage) * (parseInt(page) - 1);
 
     try {
@@ -103,6 +106,7 @@ class productControllers {
         const products = await productModel
           .find({
             $text: { $search: searchValue },
+            sellerId: id,
           })
           .skip(skipPage)
           .limit(perPage)
@@ -112,6 +116,7 @@ class productControllers {
         const totalProducts = await productModel
           .find({
             $text: { $search: searchValue },
+            sellerId: id,
           })
           .countDocuments();
 
@@ -122,13 +127,15 @@ class productControllers {
       } else if (searchValue === "" && page && perPage) {
         // Fetch products from products table
         const products = await productModel
-          .find({})
+          .find({ sellerId: id })
           .skip(skipPage)
           .limit(perPage)
           .sort({ createdAt: -1 });
 
         // Return the total number of products
-        const totalProducts = await productModel.find({}).countDocuments();
+        const totalProducts = await productModel
+          .find({ sellerId: id })
+          .countDocuments();
 
         responseReturn(res, 200, {
           products,
@@ -136,8 +143,12 @@ class productControllers {
         });
       } else {
         // Return all products data in the products section
-        const products = await productModel.find({}).sort({ createdAt: -1 });
-        const totalProducts = await productModel.find({}).countDocuments();
+        const products = await productModel
+          .find({ sellerId: id })
+          .sort({ createdAt: -1 });
+        const totalProducts = await productModel
+          .find({ sellerId: id })
+          .countDocuments();
 
         responseReturn(res, 200, {
           products,
@@ -147,6 +158,18 @@ class productControllers {
     } catch (error) {
       console.log(error.message);
     }
+  };
+
+  get_product = async (req, res) => {
+    console.log(req);
+    // const { id } = req.params;
+    // console.log("Fetching a product by id...", id);
+    // try {
+    //   const product = await productModel.findOne({ _id });
+    //   responseReturn(res, 200, { product });
+    // } catch (error) {
+    //   console.log(error.message);
+    // }
   };
 }
 export default new productControllers();
