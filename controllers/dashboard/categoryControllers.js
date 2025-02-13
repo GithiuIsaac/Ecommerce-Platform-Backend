@@ -55,8 +55,8 @@ class categoryControllers {
 
   get_category = async (req, res) => {
     // Retrieve the category data from the DB
-    console.log("Fetching categories from the DB...");
-    console.log(req.query);
+    // console.log("Fetching categories from the DB...");
+    // console.log(req.query);
     const { page, searchValue, perPage } = req.query;
     // const skipPage = parseInt(perPage) * (parseInt(page) - 1);
 
