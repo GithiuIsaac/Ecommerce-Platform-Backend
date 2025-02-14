@@ -11,7 +11,12 @@ router.get(
   authMiddleware,
   productControllers.get_product
 );
-// router.get("/get-product/:id", authMiddleware, productControllers.get_product);
+
 router.post("/add-product", authMiddleware, productControllers.add_product);
+router.post(
+  "/update-product",
+  authMiddleware,
+  productControllers.update_product
+);
 
 export default router;
