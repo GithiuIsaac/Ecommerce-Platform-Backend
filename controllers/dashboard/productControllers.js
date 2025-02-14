@@ -86,6 +86,45 @@ class productControllers {
     });
   };
 
+  update_product = async (req, res) => {
+    console.log(req.body);
+    let {
+      productId,
+      product_name,
+      description,
+      stock,
+      price,
+      discount,
+      brand,
+    } = req.body;
+    product_name = product_name.trim();
+    const slug = product_name.split(" ").join("-").toLowerCase();
+
+    try {
+      await productModel.findByIdAndUpdate(productId, {
+        productId,
+        product_name,
+        slug,
+        description,
+        stock: parseInt(stock),
+        price: parseInt(price),
+        discount,
+        brand,
+      });
+
+      const product = await productModel.findById(productId);
+      console.log(product);
+      console.log("Product updated successfully.");
+      responseReturn(res, 200, {
+        message: "Product updated successfully",
+        product,
+      });
+    } catch (error) {
+      console.error("Error adding product:", error);
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
+
   get_products = async (req, res) => {
     // Retrieve the product data from the DB
     console.log("Fetching products from the DB...");
