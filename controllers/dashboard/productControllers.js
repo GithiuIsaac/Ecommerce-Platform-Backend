@@ -214,5 +214,13 @@ class productControllers {
       responseReturn(res, 404, { error: "Product not found" });
     }
   };
+
+  update_product_image = async (req, res) => {
+    const form = formidable({ multiples: true });
+    form.parse(req, async (err, fields, files) => {
+      console.log("Fields:", fields);
+      console.log("Files:", files);
+    });
+  };
 }
 export default new productControllers();
