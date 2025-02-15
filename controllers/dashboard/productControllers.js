@@ -218,8 +218,70 @@ class productControllers {
   update_product_image = async (req, res) => {
     const form = formidable({ multiples: true });
     form.parse(req, async (err, fields, files) => {
-      console.log("Fields:", fields);
-      console.log("Files:", files);
+      const { prevImage, productId } = fields;
+      const { newImage } = files;
+
+      if (err) {
+        responseReturn(res, 400, { error: err.message });
+      } else {
+        cloudinary.config({
+          cloud_name: process.env.cloud_name,
+          api_key: process.env.api_key,
+          api_secret: process.env.api_secret,
+          secure: true,
+        });
+        // Note, formidable returns values as arrays,
+        // so even for single values, access the first array index
+        try {
+          const result = await cloudinary.uploader.upload(
+            newImage[0].filepath,
+            {
+              folder: "products",
+            }
+          );
+
+          if (result) {
+            // Get the current images array from the productModel
+            let { images } = await productModel.findById(productId);
+            // console.log("Here are the images:", images);
+
+            // Find the index of the image to be replaced
+            const index = images.findIndex((img) => img === prevImage[0]);
+            // console.log("Index of the image to be updated:", index);
+            // console.log("The previous image:", images[index]);
+
+            // Validation for the index
+            if (index === -1) {
+              return responseReturn(res, 404, {
+                error: "Previous image not found",
+              });
+            }
+
+            // Replace the previous image URL with the new one
+            images[index] = result.secure_url;
+            // console.log("The new image:", images[index]);
+
+            // Update the product with the new images array
+            await productModel.findByIdAndUpdate(productId, {
+              images,
+            });
+
+            // Fetch the updated product to return in response
+            const product = await productModel.findById(productId);
+
+            // console.log("Product image updated successfully:", product);
+            responseReturn(res, 200, {
+              message: "Product image updated successfully",
+              product,
+            });
+          } else {
+            responseReturn(res, 400, { error: "Image upload failed" });
+          }
+        } catch (error) {
+          console.error("Error updating product image:", error);
+          responseReturn(res, 500, { error: error.message });
+        }
+      }
     });
   };
 }
