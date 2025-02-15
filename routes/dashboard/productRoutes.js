@@ -18,5 +18,10 @@ router.post(
   authMiddleware,
   productControllers.update_product
 );
+router.post(
+  "/update-product-image",
+  authMiddleware,
+  productControllers.update_product_image
+);
 
 export default router;
