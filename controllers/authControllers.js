@@ -1,3 +1,5 @@
+import formidable from "formidable";
+import { v2 as cloudinary } from "cloudinary";
 import adminModel from "../models/adminModel.js";
 import sellerModel from "../models/sellerModel.js";
 import sellerCustomerModel from "../models/chat/sellerCustomerModel.js";
@@ -159,6 +161,51 @@ class authControllers {
       responseReturn(res, 500, { error: error.message });
       // responseReturn(res, 500, { error: "Internal Server Error" });
     }
+  };
+
+  // Function to handle profile image upload
+  add_profile_image = async (req, res) => {
+    const { id } = req;
+    const form = formidable({ multiples: true });
+
+    // Use _ since the fields data is not required.
+    // Only image files are required
+    form.parse(req, async (err, _, files) => {
+      const { image } = files;
+
+      cloudinary.config({
+        cloud_name: process.env.cloud_name,
+        api_key: process.env.api_key,
+        api_secret: process.env.api_secret,
+        secure: true,
+      });
+
+      // Note, formidable returns values as arrays,
+      // so even for single values, access the first array index
+      try {
+        const result = await cloudinary.uploader.upload(image[0].filepath, {
+          folder: "profiles",
+        });
+
+        if (result) {
+          // Get the current seller from the sellerModel, and update the image property
+          await sellerModel.findByIdAndUpdate(id, {
+            image: result.secure_url,
+          });
+          // Fetch the updated seller info to return in response
+          const userInfo = await sellerModel.findById(id);
+          responseReturn(res, 201, {
+            message: "Profile image added successfully",
+            userInfo,
+          });
+        } else {
+          responseReturn(res, 400, { error: "Image upload failed" });
+        }
+      } catch (error) {
+        console.error("Error updating profile image:", error);
+        responseReturn(res, 500, { error: error.message });
+      }
+    });
   };
 }
 
