@@ -207,6 +207,35 @@ class authControllers {
       }
     });
   };
+
+  // Add the user's profile information
+  add_user_profile = async (req, res) => {
+    // Confirm the data received from the frontend
+    // console.log(req.body);
+
+    // Destructure the received data
+    const { seller_name, location, town } = req.body;
+    const { id } = req;
+
+    try {
+      await sellerModel.findByIdAndUpdate(id, {
+        sellerInfo: {
+          seller_name,
+          location,
+          town,
+        },
+      });
+
+      const userInfo = await sellerModel.findById(id);
+
+      responseReturn(res, 201, {
+        message: "Profile Info added successfully.",
+        userInfo,
+      });
+    } catch (error) {
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
 }
 
 export default new authControllers();

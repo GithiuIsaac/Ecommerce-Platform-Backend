@@ -17,4 +17,10 @@ router.post(
   authMiddleware,
   authControllers.add_profile_image
 );
+router.post(
+  "/add-user-profile",
+  authMiddleware,
+  authControllers.add_user_profile
+);
+
 export default router;
