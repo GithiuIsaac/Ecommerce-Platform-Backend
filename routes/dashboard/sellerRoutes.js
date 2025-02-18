@@ -10,5 +10,10 @@ router.get(
   authMiddleware,
   sellerControllers.get_seller_requests
 );
+router.get(
+  "/get-seller/:sellerId",
+  authMiddleware,
+  sellerControllers.get_seller
+);
 
 export default router;

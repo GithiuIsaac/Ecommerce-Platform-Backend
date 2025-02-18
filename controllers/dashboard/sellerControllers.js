@@ -44,60 +44,20 @@ class sellerControllers {
       console.log(error.message);
       responseReturn(res, 500, { error: error.message });
     }
-    // try {
-    //   let skipPage = "";
-    //   if (page && perPage) {
-    //     skipPage = parseInt(perPage) * (parseInt(page) - 1);
-    //   }
-    //   if (searchValue && page && perPage) {
-    //     // Fetch sellers from the sellers table
-    //     const sellers = await sellerModel
-    //       .find({
-    //         $text: { $search: searchValue },
-    //       })
-    //       .skip(skipPage)
-    //       .limit(perPage)
-    //       .sort({ createdAt: -1 });
+  };
 
-    //     // Return the total number of sellers
-    //     const totalSellers = await sellerModel
-    //       .find({
-    //         $text: { $search: searchValue },
-    //       })
-    //       .countDocuments();
+  get_seller = async (req, res) => {
+    const { sellerId } = req.params;
 
-    //     responseReturn(res, 200, {
-    //       sellers,
-    //       totalSellers,
-    //     });
-    //   } else if (searchValue === "" && page && perPage) {
-    //     // Fetch sellers from the sellers table
-    //     const sellers = await sellerModel
-    //       .find({})
-    //       .skip(skipPage)
-    //       .limit(perPage)
-    //       .sort({ createdAt: -1 });
+    console.log("Fetching seller details by id...", sellerId);
 
-    //     // Return the total number of sellers
-    //     const totalSellers = await categoryModel.find({}).countDocuments();
-
-    //     responseReturn(res, 200, {
-    //       sellers,
-    //       totalSellers,
-    //     });
-    //   } else {
-    //     // Return all sellers data in the sellers section
-    //     const sellers = await categoryModel.find({}).sort({ createdAt: -1 });
-    //     const totalSellers = await categoryModel.find({}).countDocuments();
-
-    //     responseReturn(res, 200, {
-    //       sellers,
-    //       totalSellers,
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.log(error.message);
-    // }
+    try {
+      const seller = await sellerModel.findById(sellerId);
+      responseReturn(res, 200, { seller });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 404, { error: "Seller not found" });
+    }
   };
 
   get_sellers = async (req, res) => {
