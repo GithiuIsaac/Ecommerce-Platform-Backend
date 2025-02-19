@@ -13,24 +13,24 @@ class sellerControllers {
     const { page, searchValue, perPage } = req.query;
     const skipPage = parseInt(perPage) * (parseInt(page) - 1);
     try {
-      // Retrieve sellers where status is "pending"
+      // Retrieve sellers where status is either "pending" or "inactive"
       if (searchValue) {
         const sellers = await sellerModel.find({
           $text: { $search: searchValue },
-          status: "pending",
+          status: { $in: ["pending", "inactive"] },
         });
         responseReturn(res, 200, { sellers });
       } else {
         const sellers = await sellerModel
-          .find({ status: "pending" })
+          .find({ status: { $in: ["pending", "inactive"] } })
           .skip(skipPage)
           .limit(perPage)
           .sort({ createdAt: -1 });
 
-        // Return the total number of sellers with the pending status
+        // Return the total number of sellers with pending or inactive status
         const totalSellers = await sellerModel
           .find({
-            status: "pending",
+            status: { $in: ["pending", "inactive"] },
           })
           .countDocuments();
 
@@ -54,6 +54,27 @@ class sellerControllers {
     try {
       const seller = await sellerModel.findById(sellerId);
       responseReturn(res, 200, { seller });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 404, { error: "Seller not found" });
+    }
+  };
+
+  update_seller_status = async (req, res) => {
+    // Destructure the received query from the frontend
+    const { sellerId, status } = req.body;
+
+    console.log("Updating seller status...", sellerId, status);
+
+    try {
+      await sellerModel.findByIdAndUpdate(sellerId, {
+        status,
+      });
+      const seller = await sellerModel.findById(sellerId);
+      responseReturn(res, 200, {
+        seller,
+        message: "Seller status updated successfully.",
+      });
     } catch (error) {
       console.log(error.message);
       responseReturn(res, 404, { error: "Seller not found" });

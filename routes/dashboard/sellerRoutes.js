@@ -15,5 +15,10 @@ router.get(
   authMiddleware,
   sellerControllers.get_seller
 );
+router.post(
+  "/update-seller-status",
+  authMiddleware,
+  sellerControllers.update_seller_status
+);
 
 export default router;
