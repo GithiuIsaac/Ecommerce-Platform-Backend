@@ -1,0 +1,38 @@
+version: 0.2
+
+env:
+  git-credential-helper: yes
+
+phases:
+  pre_build:
+    commands:
+      # Configure Git
+      - git config --global user.email "igithiu@gmail.com"
+      - git config --global user.name "igithiu"
+      # Clear existing credential helpers first
+      - git config --global --unset-all credential.helper
+      # Configure GitLab credentials
+      # - git config --global credential.helper '!aws codecommit credential-helper $@'
+      - git config --global credential.helper store
+      - git config --global credential.UseHttpPath true
+      - echo "https://oauth2:${GITLAB_TOKEN}@gitlab.com" > ~/.git-credentials
+      - echo "CODEBUILD_RESOLVED_SOURCE_VERSION = $CODEBUILD_RESOLVED_SOURCE_VERSION"
+      # Debug information
+      - pwd
+      - ls -la
+      - git status
+      - git log -5
+      - git describe --all
+      - git remote -v
+
+  build:
+    commands:      
+      # Add GitLab remote and push
+      - git branch
+      # Construct GitLab URL with token
+      - GITLAB_URL_WITH_TOKEN="https://oauth2:${GITLAB_TOKEN}@${GITLAB_REPO_URL#https://}"
+      - git remote add gitlab "$GITLAB_URL_WITH_TOKEN"
+      # - git remote add gitlab $GITLAB_REPO_URL
+      - git remote -v
+      - git push gitlab main
+      # - git push --mirror $GITLAB_REPO_URL
