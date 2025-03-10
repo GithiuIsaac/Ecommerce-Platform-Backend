@@ -40,7 +40,8 @@ class homeControllers {
     // Retrieve the product data from the DB
     console.log("Fetching products from the DB...");
     try {
-      // Return all product data from the db, limit 16
+      // Return all product data from the db, limit 12
+      // This will limit the products displayed on the home page to 12
       const products = await productModel
         .find({})
         .limit(12)
@@ -73,6 +74,35 @@ class homeControllers {
         top_products,
         discount_products,
       });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  price_range_products = async (req, res) => {
+    try {
+      const priceRange = {
+        low: 0,
+        high: 0,
+      };
+      const products = await productModel
+        .find({})
+        .limit(9)
+        .sort({ createdAt: -1 });
+      const latest_products = this.formatProduct(products);
+
+      // Return products sorted in ascending order by price
+      const priceProducts = await productModel.find({}).sort({ price: 1 });
+
+      // Dynamically generate the price range for all products
+      if (priceProducts.length > 0) {
+        // Get highest price in the returned products - Last index
+        priceRange.high = priceProducts[priceProducts.length - 1].price;
+        // Get lowest price in the returned products - First index
+        priceRange.low = priceProducts[0].price;
+      }
+      // console.log(priceRange);
+      responseReturn(res, 200, { products, latest_products, priceRange });
     } catch (error) {
       console.log(error.message);
     }
