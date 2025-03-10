@@ -7,6 +7,7 @@ const router = Router();
 // The authMiddleware ensures no access for unauthenticated users
 router.get("/get-categories", homeControllers.get_categories);
 router.get("/get-products", homeControllers.get_products);
+router.get("/price-range-products", homeControllers.price_range_products);
 
 // router.post("/add-category", authMiddleware, categoryControllers.add_category);
 
