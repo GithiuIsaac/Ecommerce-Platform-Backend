@@ -1,6 +1,7 @@
 import productModel from "../../models/productModel.js";
 import categoryModel from "../../models/categoryModel.js";
 import { responseReturn } from "../../utilities/response.js";
+import queryProducts from "../../utilities/queryProducts.js";
 
 class homeControllers {
   formatProduct = (products) => {
@@ -103,6 +104,69 @@ class homeControllers {
       }
       // console.log(priceRange);
       responseReturn(res, 200, { products, latest_products, priceRange });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  query_products = async (req, res) => {
+    // Set up pagination with 12 items per page and add it to the query parameters.
+    const perPage = 12;
+    req.query.perPage = perPage;
+    // console.log("Running the query_products method...");
+    console.log(req.query);
+    try {
+      // Retrieve all products from the DB, sorted by creation date (newest first)
+      const products = await productModel.find({}).sort({ createdAt: -1 });
+
+      // Create a single instance of queryProducts and apply the common filters:
+      const queryInstance = new queryProducts(products, req.query)
+        .categoryQuery()
+        .ratingQuery()
+        .priceQuery()
+        .sortByPrice();
+
+      // console.log(
+      //   "Query instance products length:",
+      //   queryInstance.products.length
+      // );
+
+      // Get total count after filtering but before pagination
+      const totalProducts = queryInstance.countProducts();
+      // console.log("After countProducts:", totalProducts);
+
+      // Apply pagination and get results
+      const resultProducts = queryInstance.skip().limit().getProducts();
+      // console.log("Final resultProducts:", resultProducts.length);
+
+      // // Getting Total Count:
+      // // - First instance of queryProducts to get the total count
+      // // - Apply all filters and call countProducts() to get total number of products after filtering
+      // const totalProducts = new queryProducts(products, req.query)
+      //   .categoryQuery()
+      //   .ratingQuery()
+      //   .priceQuery()
+      //   .sortByPrice()
+      //   .countProducts();
+
+      // // Getting Page Results:
+      // // - Second instance of queryProducts for the actual results
+      // // - Use skip() and limit() for pagination
+      // // - Get the final products for current page
+      // const resultProducts = new queryProducts(products, req.query)
+      //   .categoryQuery()
+      //   .ratingQuery()
+      //   .priceQuery()
+      //   .sortByPrice()
+      //   .skip()
+      //   .limit()
+      //   .getProducts();
+
+      responseReturn(res, 200, {
+        products: resultProducts,
+        totalProducts,
+        perPage,
+      });
     } catch (error) {
       console.log(error.message);
     }
