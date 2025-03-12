@@ -124,6 +124,7 @@ class homeControllers {
         .categoryQuery()
         .ratingQuery()
         .priceQuery()
+        .searchQuery()
         .sortByPrice();
 
       // console.log(
