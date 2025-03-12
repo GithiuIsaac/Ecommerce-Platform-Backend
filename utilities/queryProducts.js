@@ -45,6 +45,30 @@ class queryProducts {
     return this;
   };
 
+  searchQuery = () => {
+    // product_name - DB field in the products table
+    // product - Each individual product object in the array
+
+    // If there's a search value in the query - The search value entered by a user
+    // - Use filter() to create a new array containing only matching products
+    // - Convert both the product name for each product, and search value to uppercase to make the search case-insensitive
+    // - Use indexOf() to check if the search value appears anywhere in the product name
+    // - indexOf() returns -1 if the term isn't found, otherwise returns the position
+    // - > -1 means "found at any position"
+    // this.query.searchValue filters the this.products array and only keeps products where the product_name matches
+
+    // If no search value, return the original this.products array unfiltered
+    this.products = this.query.searchValue
+      ? this.products.filter(
+          (product) =>
+            product.product_name
+              .toUpperCase()
+              .indexOf(this.query.searchValue.toUpperCase()) > -1
+        )
+      : this.products;
+    return this;
+  };
+
   priceQuery = () => {
     // price - DB field in the products table
     // product - Each individual product object in the array
