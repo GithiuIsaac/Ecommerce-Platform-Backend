@@ -12,10 +12,14 @@ class customerAuthControllers {
     // Destructure the received data
     const { email, password } = req.body;
     try {
+      // Search for the first doc in customerModel where the email field matches the provided email
+      // Returns a single document (customer) or null if not found
+      // password field is typically defined with select: false for security reasons, meaning it's excluded from query results by default
+      // Using select("+password") explicitly includes the password field in this query result
       const customer = await customerModel
         .findOne({ email })
         .select("+password");
-      // console.log(customer);
+
       if (customer) {
         // Check if the customer email exists
         // Once email is found, check if the password is correct
@@ -23,7 +27,6 @@ class customerAuthControllers {
           password,
           customer.password
         );
-        // console.log(isPasswordMatch);
 
         if (isPasswordMatch) {
           // If password is correct, generate token & return success message
@@ -40,6 +43,7 @@ class customerAuthControllers {
             expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
           });
           responseReturn(res, 200, {
+            customerInfo: { name: customer.name, email: customer.email },
             token,
             message: "Login successful",
           });
@@ -54,7 +58,6 @@ class customerAuthControllers {
     } catch (error) {
       responseReturn(res, 500, { error: error.message });
     }
-    // console.log(req.body);
   };
 
   customer_register = async (req, res) => {
