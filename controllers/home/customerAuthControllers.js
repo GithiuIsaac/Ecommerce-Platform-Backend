@@ -43,7 +43,6 @@ class customerAuthControllers {
             expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
           });
           responseReturn(res, 200, {
-            customerInfo: { name: customer.name, email: customer.email },
             token,
             message: "Login successful",
           });
@@ -93,21 +92,21 @@ class customerAuthControllers {
         //   customerIds: customer.id,
         // });
 
-        // generate token
-        const token = await createToken({
-          id: customer.id,
-          name: customer.name,
-          email: customer.email,
-          method: customer.method,
-        });
+        // // generate token
+        // const token = await createToken({
+        //   id: customer.id,
+        //   name: customer.name,
+        //   email: customer.email,
+        //   method: customer.method,
+        // });
 
-        // Create access cookie
-        res.cookie("customerToken", token, {
-          // expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day
-          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-        });
+        // // Create access cookie
+        // res.cookie("customerToken", token, {
+        //   // expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day
+        //   expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        // });
 
-        responseReturn(res, 201, { token, message: "Registration successful" });
+        responseReturn(res, 201, { message: "Registration successful" });
       }
     } catch (error) {
       // Confirm error message
