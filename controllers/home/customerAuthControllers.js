@@ -88,23 +88,6 @@ class customerAuthControllers {
         await sellerCustomerModel.create({
           sellerId: customer.id,
         });
-        // await sellerCustomerModel.create({
-        //   customerIds: customer.id,
-        // });
-
-        // // generate token
-        // const token = await createToken({
-        //   id: customer.id,
-        //   name: customer.name,
-        //   email: customer.email,
-        //   method: customer.method,
-        // });
-
-        // // Create access cookie
-        // res.cookie("customerToken", token, {
-        //   // expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day
-        //   expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-        // });
 
         responseReturn(res, 201, { message: "Registration successful" });
       }
