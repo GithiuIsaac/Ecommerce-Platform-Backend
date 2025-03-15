@@ -61,10 +61,15 @@ class cartControllers {
           productId,
           quantity,
         });
+        // Return the new productCount for the customer
+        const productCount = await cartModel.countDocuments({
+          customerId: customerId,
+        });
         console.log(cartProduct);
         responseReturn(res, 201, {
           message: "Successfully added to cart",
           cartProduct,
+          productCount,
         });
       }
     } catch (error) {
@@ -75,6 +80,7 @@ class cartControllers {
     }
   };
 
+  // This function is meant to be called by the Header component when a customer first loads the page
   get_product_count = async (req, res) => {
     // Destructure customerId from the request body
     // console.log(req.body);
