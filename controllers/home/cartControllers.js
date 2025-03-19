@@ -480,5 +480,21 @@ class cartControllers {
       responseReturn(res, 500, { error: error.message });
     }
   };
+
+  delete_cart_product = async (req, res) => {
+    // Destructure cartId from the request params
+    const { cartId } = req.params;
+    console.log(cartId);
+    try {
+      // Find the cart item by its ID and delete it
+      const cartItem = await cartModel.findByIdAndDelete(cartId);
+      responseReturn(res, 200, {
+        message: "Product removed from cart",
+      });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
 }
 export default new cartControllers();
