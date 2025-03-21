@@ -14,6 +14,10 @@ router.delete(
   cartControllers.delete_cart_product
 );
 
+router.put("/increase-quantity/:cartId", cartControllers.increase_quantity);
+
+router.put("/decrease-quantity/:cartId", cartControllers.decrease_quantity);
+
 // router.get("/price-range-products", homeControllers.price_range_products);
 // router.get("/query-products", homeControllers.query_products);
 // router.post("/add-category", authMiddleware, categoryControllers.add_category);
