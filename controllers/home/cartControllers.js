@@ -7,16 +7,17 @@ const { ObjectId } = mongoose.mongo;
 class cartControllers {
   computeCommission(price) {
     const COMMISSION_PERCENTAGE = 5;
-    return (price * COMMISSION_PERCENTAGE) / 100;
+    return Math.round(((price * COMMISSION_PERCENTAGE) / 100) * 100) / 100;
   }
 
   computePrice(price, quantity, discount) {
     if (discount === 0) {
       // No discount: original price * quantity
-      return price * quantity;
+      return Math.round(price * quantity * 100) / 100;
     }
     // With discount: (original price - discount) * quantity
-    const discountedPrice = price - Math.floor((price * discount) / 100);
+    const discountedPrice =
+      price - Math.round(((price * discount) / 100) * 100) / 100;
     return discountedPrice * quantity;
   }
 
@@ -223,11 +224,14 @@ class cartControllers {
           // Check if product belongs to current seller
           if (tempProduct.sellerId.toString() === uniqueSellerIds[i]) {
             // Calculate price for this product with discount if applicable
-            const productTotal = this.computePrice(
-              tempProduct.price,
-              stockProducts[j].quantity,
-              tempProduct.discount
-            );
+            const productTotal =
+              Math.round(
+                this.computePrice(
+                  tempProduct.price,
+                  stockProducts[j].quantity,
+                  tempProduct.discount
+                ) * 100
+              ) / 100;
 
             // Add to seller's total
             sellerTotal += productTotal;
@@ -236,7 +240,10 @@ class cartControllers {
             cartItemsBySeller[i] = {
               sellerId: uniqueSellerIds[i],
               sellerName: tempProduct.seller_name,
-              price: sellerTotal + this.computeCommission(sellerTotal),
+              price:
+                Math.round(
+                  (sellerTotal + this.computeCommission(sellerTotal)) * 100
+                ) / 100,
               products_data: cartItemsBySeller[i]
                 ? [
                     // If seller already has products
@@ -275,14 +282,14 @@ class cartControllers {
       }
 
       // Calculate total price from seller groups
-      const totalPrice = cartItemsBySeller.reduce(
-        (sum, seller) => sum + seller.price,
-        0
-      );
+      const totalPrice =
+        Math.round(
+          cartItemsBySeller.reduce((sum, seller) => sum + seller.price, 0) * 100
+        ) / 100;
 
-      console.log("Products grouped by seller", cartItemsBySeller);
+      // console.log("Products grouped by seller", cartItemsBySeller);
 
-      console.log("The calculated price is:", totalPrice);
+      // console.log("The calculated price is:", totalPrice);
 
       responseReturn(res, 200, {
         cartProducts: cartItemsBySeller,
@@ -487,9 +494,46 @@ class cartControllers {
     console.log(cartId);
     try {
       // Find the cart item by its ID and delete it
-      const cartItem = await cartModel.findByIdAndDelete(cartId);
+      await cartModel.findByIdAndDelete(cartId);
       responseReturn(res, 200, {
         message: "Product removed from cart",
+      });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
+
+  increase_quantity = async (req, res) => {
+    // Destructure cartId from the request params
+    const { cartId } = req.params;
+    try {
+      // Find the cart item by its ID
+      const cartProduct = await cartModel.findById(cartId);
+      console.log(cartProduct);
+      // Increase the quantity by 1
+      const { quantity } = cartProduct;
+      await cartModel.findByIdAndUpdate(cartId, { quantity: quantity + 1 });
+      responseReturn(res, 200, {
+        message: "Product quantity updated",
+      });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
+
+  decrease_quantity = async (req, res) => {
+    // Destructure cartId from the request params
+    const { cartId } = req.params;
+    try {
+      // Find the cart item by its ID
+      const cartProduct = await cartModel.findById(cartId);
+      // Decrease the quantity by 1
+      const { quantity } = cartProduct;
+      await cartModel.findByIdAndUpdate(cartId, { quantity: quantity - 1 });
+      responseReturn(res, 200, {
+        message: "Product quantity decreased",
       });
     } catch (error) {
       console.log(error.message);
