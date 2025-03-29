@@ -11,5 +11,9 @@ router.get(
   "/get-dashboard-data/:customerId",
   customerControllers.get_dashboard_data
 );
+router.get(
+  "/get-customer-orders/:customerId/:status",
+  customerControllers.get_customer_orders
+);
 
 export default router;

@@ -48,7 +48,33 @@ class customerControllers {
       });
     } catch (error) {
       console.log(error.message);
-      //   responseReturn(res, 500, { error: error.message });
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
+
+  get_customer_orders = async (req, res) => {
+    const { customerId, status } = req.params;
+
+    try {
+      let orders = [];
+      if (status !== "all") {
+        orders = await customerOrderModel
+          .find({
+            customerId: new ObjectId(customerId),
+            delivery_status: status,
+          })
+          .sort({ createdAt: -1 });
+      } else {
+        orders = await customerOrderModel
+          .find({ customerId: new ObjectId(customerId) })
+          .sort({ createdAt: -1 });
+      }
+      responseReturn(res, 200, {
+        orders,
+      });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, { error: error.message });
     }
   };
 }
