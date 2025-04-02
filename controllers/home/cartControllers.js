@@ -1,6 +1,7 @@
 import { responseReturn } from "../../utilities/response.js";
 import cartModel from "../../models/cartModel.js";
 import mongoose from "mongoose";
+import wishlistModel from "../../models/wishlistModel.js";
 
 const { ObjectId } = mongoose.mongo;
 
@@ -535,6 +536,116 @@ class cartControllers {
       responseReturn(res, 200, {
         message: "Product quantity decreased",
       });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
+
+  add_to_wishlist = async (req, res) => {
+    // console.log(req.body);
+    // Destructure the req data
+    const {
+      customerId,
+      productId,
+      productName,
+      price,
+      image,
+      discount,
+      rating,
+      sellerName,
+      sellerId,
+      slug,
+    } = req.body;
+
+    try {
+      // Searches the wishlist collection for a document
+      // Returns the first document that matches BOTH conditions
+
+      // More concise query
+      //   const product = await cartModel.findOne({
+      //     productId: productId,
+      //     customerId: customerId
+      // });
+      const product = await wishlistModel.findOne({
+        // AND operator - both conditions must be true
+        $and: [
+          {
+            productId: {
+              // First condition: DB productId equals provided productId
+              $eq: productId,
+            },
+          },
+          {
+            customerId: {
+              // Second condition: DB customerId equals provided customerId
+              $eq: customerId,
+            },
+          },
+        ],
+      });
+      if (product) {
+        // Product already exists in wishlist
+        // Inform the customer that the product is already on the wishlist
+        responseReturn(res, 409, {
+          error: "Product is already on the wishlist.",
+        });
+      } else {
+        // Create a new wishlist item
+        const wishlistProduct = await wishlistModel.create({
+          customerId,
+          productId,
+          productName,
+          price,
+          image,
+          discount,
+          rating,
+          sellerName,
+          sellerId,
+          slug,
+        });
+        // Return the new wishlistCount for the customer
+        const wishlistCount = await wishlistModel.countDocuments({
+          customerId: customerId,
+        });
+        responseReturn(res, 201, {
+          message: "Product successfully added to wishlist",
+          wishlistProduct,
+          wishlistCount,
+        });
+      }
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, {
+        error: error.message,
+      });
+    }
+  };
+
+  // This function is meant to be called by the Header component when a customer first loads the page
+  get_wishlist_count = async (req, res) => {
+    // Destructure customerId from the query params
+    // console.log(req.query);
+    const { customerId } = req.query;
+    // console.log(customerId);
+    try {
+      // countDocuments() counts documents matching a query
+      // Returns how many cart items belong to a specific customer
+      const productCount = await cartModel.countDocuments({
+        customerId: customerId,
+      });
+      // console.log(`There are ${productCount} products in the cart`);
+      responseReturn(res, 200, { productCount });
+    } catch (error) {
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
+
+  get_wishlist_products = async (req, res) => {
+    // Destructure customerId from the request params
+    const { customerId } = req.params;
+    try {
+      responseReturn(res, 200, {});
     } catch (error) {
       console.log(error.message);
       responseReturn(res, 500, { error: error.message });

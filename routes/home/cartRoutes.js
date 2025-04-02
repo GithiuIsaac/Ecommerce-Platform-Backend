@@ -15,9 +15,14 @@ router.delete(
 );
 
 router.put("/increase-quantity/:cartId", cartControllers.increase_quantity);
-
 router.put("/decrease-quantity/:cartId", cartControllers.decrease_quantity);
 
+router.post("/add-to-wishlist", cartControllers.add_to_wishlist);
+router.get("/get-wishlist-count", cartControllers.get_wishlist_count);
+router.get(
+  "/get-wishlist-products/:customerId",
+  cartControllers.get_wishlist_products
+);
 // router.get("/price-range-products", homeControllers.price_range_products);
 // router.get("/query-products", homeControllers.query_products);
 // router.post("/add-category", authMiddleware, categoryControllers.add_category);
