@@ -77,6 +77,20 @@ class customerControllers {
       responseReturn(res, 500, { error: error.message });
     }
   };
+
+  get_order_details = async (req, res) => {
+    const { orderId } = req.params;
+
+    try {
+      const myOrder = await customerOrderModel.findById(orderId);
+      responseReturn(res, 200, {
+        myOrder,
+      });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
 }
 
 export default new customerControllers();

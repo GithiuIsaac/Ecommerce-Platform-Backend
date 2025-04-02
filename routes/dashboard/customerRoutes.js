@@ -15,5 +15,9 @@ router.get(
   "/get-customer-orders/:customerId/:status",
   customerControllers.get_customer_orders
 );
+router.get(
+  "/get-order-details/:orderId",
+  customerControllers.get_order_details
+);
 
 export default router;
