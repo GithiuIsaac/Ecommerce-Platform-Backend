@@ -625,17 +625,14 @@ class cartControllers {
   // This function is meant to be called by the Header component when a customer first loads the page
   get_wishlist_count = async (req, res) => {
     // Destructure customerId from the query params
-    // console.log(req.query);
     const { customerId } = req.query;
-    // console.log(customerId);
     try {
       // countDocuments() counts documents matching a query
-      // Returns how many cart items belong to a specific customer
-      const productCount = await cartModel.countDocuments({
+      // Returns how many wishlist items belong to a specific customer
+      const wishlistCount = await wishlistModel.countDocuments({
         customerId: customerId,
       });
-      // console.log(`There are ${productCount} products in the cart`);
-      responseReturn(res, 200, { productCount });
+      responseReturn(res, 200, { wishlistCount });
     } catch (error) {
       responseReturn(res, 500, { error: error.message });
     }
