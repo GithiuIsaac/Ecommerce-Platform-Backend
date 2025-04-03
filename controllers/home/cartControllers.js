@@ -642,7 +642,11 @@ class cartControllers {
     // Destructure customerId from the request params
     const { customerId } = req.params;
     try {
-      responseReturn(res, 200, {});
+      const wishlistProducts = await wishlistModel.find({
+        customerId: customerId,
+      });
+      const wishlistCount = wishlistProducts.length;
+      responseReturn(res, 200, { wishlistProducts, wishlistCount });
     } catch (error) {
       console.log(error.message);
       responseReturn(res, 500, { error: error.message });
