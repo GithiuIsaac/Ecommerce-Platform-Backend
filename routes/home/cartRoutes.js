@@ -23,8 +23,9 @@ router.get(
   "/get-wishlist-products/:customerId",
   cartControllers.get_wishlist_products
 );
-// router.get("/price-range-products", homeControllers.price_range_products);
-// router.get("/query-products", homeControllers.query_products);
-// router.post("/add-category", authMiddleware, categoryControllers.add_category);
+router.delete(
+  "/remove-wishlist-product/:wishlistId",
+  cartControllers.remove_wishlist_product
+);
 
 export default router;

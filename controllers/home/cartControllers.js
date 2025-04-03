@@ -652,5 +652,22 @@ class cartControllers {
       responseReturn(res, 500, { error: error.message });
     }
   };
+
+  remove_wishlist_product = async (req, res) => {
+    // Destructure wishlistId from the request params
+    const { wishlistId } = req.params;
+    try {
+      // Find the wishlist item by its ID and delete it
+      await wishlistModel.findByIdAndDelete(wishlistId);
+
+      responseReturn(res, 200, {
+        message: "Product removed from wishlist",
+        wishlistId,
+      });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
 }
 export default new cartControllers();
