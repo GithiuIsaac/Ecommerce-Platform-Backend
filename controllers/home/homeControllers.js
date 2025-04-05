@@ -2,6 +2,8 @@ import productModel from "../../models/productModel.js";
 import categoryModel from "../../models/categoryModel.js";
 import { responseReturn } from "../../utilities/response.js";
 import queryProducts from "../../utilities/queryProducts.js";
+import reviewModel from "../../models/ReviewModel.js";
+import moment from "moment";
 
 class homeControllers {
   formatProduct = (products) => {
@@ -173,7 +175,6 @@ class homeControllers {
 
   get_product_details = async (req, res) => {
     // Retrieve the product's details from the DB
-    console.log(req.params);
     const { slug } = req.params;
     try {
       const product = await productModel.findOne({ slug });
@@ -197,6 +198,43 @@ class homeControllers {
     } catch (error) {
       console.log(error.message);
     }
+  };
+
+  submit_review = async (req, res) => {
+    // Destructure the review_data passed in from the frontend
+    const { name, customerId, review, rating, productId } = req.body;
+
+    try {
+      // Create the review in the reviews table
+      await reviewModel.create({
+        name,
+        customerId,
+        productId,
+        review,
+        rating,
+        date: moment(Date.now()).format("LL"),
+      });
+
+      // Calculate total ratings for the product
+      let ratings = 0;
+      const reviews = await reviewModel.find({ productId });
+      for (let i = 0; i < reviews.length; i++) {
+        ratings += reviews[i].rating;
+      }
+
+      // Calculate average product rating based on number of ratings
+      let product_rating = 0;
+      if (reviews.length !== 0) {
+        product_rating = (ratings / reviews.length).toFixed(1);
+      }
+
+      // Update the product's rating in the products table
+      await productModel.findByIdAndUpdate(productId, {
+        rating: product_rating,
+      });
+
+      responseReturn(res, 201, { message: "Review added successfully" });
+    } catch (error) {}
   };
 }
 export default new homeControllers();
