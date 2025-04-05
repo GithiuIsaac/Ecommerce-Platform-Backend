@@ -134,11 +134,9 @@ class homeControllers {
 
       // Get total count after filtering but before pagination
       const totalProducts = queryInstance.countProducts();
-      // console.log("After countProducts:", totalProducts);
 
       // Apply pagination and get results
       const resultProducts = queryInstance.skip().limit().getProducts();
-      // console.log("Final resultProducts:", resultProducts.length);
 
       // // Getting Total Count:
       // // - First instance of queryProducts to get the total count
@@ -168,6 +166,34 @@ class homeControllers {
         totalProducts,
         perPage,
       });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  get_product_details = async (req, res) => {
+    // Retrieve the product's details from the DB
+    console.log(req.params);
+    const { slug } = req.params;
+    try {
+      const product = await productModel.findOne({ slug });
+      // console.log(product);
+
+      // Return products with the same category, excluding the id for the product already being displayed.
+      const relatedProducts = await productModel
+        .find({
+          $and: [{ category: product.category }, { _id: { $ne: product._id } }],
+        })
+        .limit(12);
+
+      // Return products from the same seller/vendor - limit to 3
+      const sellerProducts = await productModel
+        .find({
+          $and: [{ sellerId: product.sellerId }, { _id: { $ne: product._id } }],
+        })
+        .limit(3);
+
+      responseReturn(res, 200, { product, relatedProducts, sellerProducts });
     } catch (error) {
       console.log(error.message);
     }
