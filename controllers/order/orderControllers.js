@@ -50,7 +50,7 @@ class orderControllers {
 
   place_order = async (req, res) => {
     const {
-      productsPrice,
+      price,
       orderProducts,
       shippingFee,
       itemCount,
@@ -93,7 +93,7 @@ class orderControllers {
       const customerOrder = await customerOrderModel.create({
         customerId,
         order_products: customerOrderProducts,
-        order_price: productsPrice + shippingFee + tax,
+        order_price: price + shippingFee + tax,
         payment_status: "pending",
         shipping_details: shippingDetails,
         delivery_status: "pending_payment",
