@@ -4,6 +4,9 @@ import { responseReturn } from "../../utilities/response.js";
 import queryProducts from "../../utilities/queryProducts.js";
 import reviewModel from "../../models/ReviewModel.js";
 import moment from "moment";
+import mongoose from "mongoose";
+
+const { ObjectId } = mongoose.mongo;
 
 class homeControllers {
   formatProduct = (products) => {
@@ -235,6 +238,86 @@ class homeControllers {
 
       responseReturn(res, 201, { message: "Review added successfully" });
     } catch (error) {}
+  };
+
+  get_product_reviews = async (req, res) => {
+    // This method should:
+    // - return all the product reviews, filtered by the provided pagination
+    // - return the total number of reviews for the product
+    // - calculate the rating distribution, how many 5, 4, 3, 2, 1 stars for the product
+    // - calculate the average rating
+
+    // console.log(req.params);
+    // console.log(req.query);
+    const { productId } = req.params;
+    let { page } = req.query;
+    page = parseInt(page);
+
+    const limit = 5;
+    const skipPage = limit * (page - 1);
+    try {
+      const getRating = await reviewModel.aggregate([
+        {
+          $match: {
+            productId: {
+              $eq: new ObjectId(productId),
+            },
+            rating: {
+              $not: {
+                $size: 0,
+              },
+            },
+          },
+        },
+        {
+          $unwind: "$rating",
+        },
+        {
+          $group: {
+            _id: "$rating",
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+      ]);
+      console.log(getRating);
+      // Group the reviews by rating
+      let ratingReview = [
+        { rating: 5, sum: 0 },
+        { rating: 4, sum: 0 },
+        { rating: 3, sum: 0 },
+        { rating: 2, sum: 0 },
+        { rating: 1, sum: 0 },
+      ];
+      console.log(ratingReview);
+
+      for (let i = 0; i < ratingReview.length; i++) {
+        for (let j = 0; j < getRating.length; j++) {
+          if (ratingReview[i].rating === getRating[j]._id) {
+            ratingReview[i].sum = getRating[j].count;
+            break;
+          }
+        }
+      }
+      console.log(ratingReview);
+
+      const allReviews = await reviewModel.find({ productId });
+
+      const reviews = await reviewModel
+        .find({ productId })
+        .skip(skipPage)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+
+      responseReturn(res, 200, {
+        reviews,
+        totalReviews: allReviews.length,
+        ratingReview,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 }
 export default new homeControllers();

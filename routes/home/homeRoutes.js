@@ -11,5 +11,9 @@ router.get("/price-range-products", homeControllers.price_range_products);
 router.get("/query-products", homeControllers.query_products);
 router.get("/get-product-details/:slug", homeControllers.get_product_details);
 router.post("/customer/submit-review", homeControllers.submit_review);
+router.get(
+  "/get-product-reviews/:productId",
+  homeControllers.get_product_reviews
+);
 
 export default router;
