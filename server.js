@@ -5,6 +5,7 @@ import categoryRoutes from "./routes/dashboard/categoryRoutes.js";
 import productRoutes from "./routes/dashboard/productRoutes.js";
 import sellerRoutes from "./routes/dashboard/sellerRoutes.js";
 import customerDashboardRoutes from "./routes/dashboard/customerRoutes.js";
+import chatRoutes from "./routes/chat/chatRoutes.js";
 import homeRoutes from "./routes/home/homeRoutes.js";
 import customerAuthRoutes from "./routes/home/customerAuthRoutes.js";
 import cartRoutes from "./routes/home/cartRoutes.js";
@@ -77,6 +78,7 @@ app.use("/api", sellerRoutes);
 app.use("/api/home", homeRoutes);
 app.use("/api/customer", customerAuthRoutes);
 app.use("/api/dashboard", customerDashboardRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.get("/", (req, res) => {
   res.send("This is the backend server");
