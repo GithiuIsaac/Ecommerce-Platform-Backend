@@ -13,18 +13,56 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import dbConnect from "./utilities/db.js";
+import { Server } from "socket.io";
+import http from "http";
 
 const app = express();
 const port = process.env.PORT;
 
 dbConnect();
 
+const server = http.createServer(app);
 app.use(
   cors({
     origin: ["http://localhost:5173"],
     credentials: true,
   })
 );
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    credentials: true,
+  },
+});
+
+var allCustomers = [];
+
+function addCustomer(customerId, socketId, customerInfo) {
+  const checkCustomer = allCustomers.some(
+    (customer) => customer.customerId === customerId
+  );
+  if (!checkCustomer) {
+    allCustomers.push({ customerId, socketId, customerInfo });
+  }
+  // !allCustomers.some((customer) => customer.customerId === customerId) &&
+  //   allCustomers.push({ customerId, socketId, customerInfo });
+}
+
+io.on("connection", (socket) => {
+  // console.log("User connected");
+  console.log("Socket server running...");
+
+  // Add customer
+  socket.on("add_customer", (customerId, customerInfo) => {
+    addCustomer(customerId, socket.id, customerInfo);
+  });
+
+  socket.on("disconnect", () => {
+    // console.log("User disconnected");
+    console.log("Socket server disconnected");
+  });
+});
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -52,6 +90,6 @@ app.get("/contact", (req, res) => {
   res.send("<h1>Contact Me</h1><p>Phone: +254123456789</p>");
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
