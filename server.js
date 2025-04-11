@@ -39,7 +39,7 @@ const io = new Server(server, {
 
 var allCustomers = [];
 
-function addCustomer(customerId, socketId, customerInfo) {
+function linkUsers(customerId, socketId, customerInfo) {
   const checkCustomer = allCustomers.some(
     (customer) => customer.customerId === customerId
   );
@@ -55,8 +55,8 @@ io.on("connection", (socket) => {
   console.log("Socket server running...");
 
   // Add customer
-  socket.on("add_customer", (customerId, customerInfo) => {
-    addCustomer(customerId, socket.id, customerInfo);
+  socket.on("link_users", (customerId, customerInfo) => {
+    linkUsers(customerId, socket.id, customerInfo);
   });
 
   socket.on("disconnect", () => {
