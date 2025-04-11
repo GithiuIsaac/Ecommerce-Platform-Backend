@@ -3,11 +3,11 @@ import { responseReturn } from "../../utilities/response.js";
 import sellerModel from "../../models/sellerModel.js";
 import customerModel from "../../models/customerModel.js";
 import sellerCustomerModel from "../../models/chat/sellerCustomerModel.js";
+import sellerCustomerMsgModel from "../../models/chat/sellerCustomerMessages.js";
 
 class chatControllers {
   // This method creates a relationship/connection between an existing seller and an existing customer in the sellerCustomerModel
-  // linkSellerToCustomer
-  add_customer = async (req, res) => {
+  link_users = async (req, res) => {
     // console.log(req.body);
     const { sellerId, customerId } = req.body;
 
