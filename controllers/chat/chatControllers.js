@@ -183,6 +183,69 @@ class chatControllers {
       console.log(error.message);
     }
   };
+
+  // The send_customer_message function handles sending a customer message to a seller
+  send_customer_message = async (req, res) => {
+    const { customerId, customerName, msg, sellerId, sellerName } = req.body;
+
+    try {
+      const message = await sellerCustomerMsgModel.create({
+        senderId: customerId,
+        senderName: customerName,
+        message: msg,
+        receiverId: sellerId,
+        receiverName: sellerName,
+      });
+
+      // Indexing the seller data
+      // Retrieve the sellers linked to this customer
+      const sellerData = await sellerCustomerModel.findOne({
+        userId: customerId,
+      });
+      let linkedSellers = sellerData.linkedUsers;
+      let sellerIndex = linkedSellers.findIndex(
+        (seller) => seller.userId === sellerId
+      );
+
+      while (sellerIndex > 0) {
+        let temp = linkedSellers[sellerIndex];
+        linkedSellers[sellerIndex] = linkedSellers[sellerIndex - 1];
+        linkedSellers[sellerIndex - 1] = temp;
+        sellerIndex--;
+      }
+
+      await sellerCustomerModel.updateOne(
+        { userId: customerId },
+        { linkedUsers: linkedSellers }
+      );
+
+      // Indexing the customer data
+      // Retrieve the customers linked to this seller
+      const customerData = await sellerCustomerModel.findOne({
+        userId: sellerId,
+      });
+      let linkedCustomers = customerData.linkedUsers;
+      let customerIndex = linkedCustomers.findIndex(
+        (customer) => customer.userId === customerId
+      );
+
+      while (customerIndex > 0) {
+        let temp = linkedCustomers[customerIndex];
+        linkedCustomers[customerIndex] = linkedCustomers[customerIndex - 1];
+        linkedCustomers[customerIndex - 1] = temp;
+        customerIndex--;
+      }
+
+      await sellerCustomerModel.updateOne(
+        { userId: sellerId },
+        { linkedUsers: linkedCustomers }
+      );
+
+      responseReturn(res, 201, { msg });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 }
 
 export default new chatControllers();
