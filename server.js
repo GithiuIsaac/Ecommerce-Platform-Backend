@@ -38,6 +38,7 @@ const io = new Server(server, {
 });
 
 var allCustomers = [];
+var allSellers = [];
 
 function linkUsers(customerId, socketId, customerInfo) {
   const checkCustomer = allCustomers.some(
@@ -50,6 +51,13 @@ function linkUsers(customerId, socketId, customerInfo) {
   //   allCustomers.push({ customerId, socketId, customerInfo });
 }
 
+function addSeller(sellerId, socketId, userInfo) {
+  const checkSeller = allSellers.some((seller) => seller.sellerId === sellerId);
+  if (!checkSeller) {
+    allSellers.push({ sellerId, socketId, userInfo });
+  }
+}
+
 io.on("connection", (socket) => {
   // console.log("User connected");
   console.log("Socket server running...");
@@ -57,6 +65,12 @@ io.on("connection", (socket) => {
   // Add customer
   socket.on("link_users", (customerId, customerInfo) => {
     linkUsers(customerId, socket.id, customerInfo);
+  });
+
+  // Add seller
+  socket.on("add_seller", (sellerId, userInfo) => {
+    console.log("Seller added: ", userInfo);
+    addSeller(sellerId, socket.id, userInfo);
   });
 
   socket.on("disconnect", () => {
