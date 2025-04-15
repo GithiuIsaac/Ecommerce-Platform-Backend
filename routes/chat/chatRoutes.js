@@ -7,6 +7,6 @@ const router = Router();
 // The authMiddleware ensures no access for unauthenticated users
 router.post("/link-users", chatControllers.link_users);
 router.post("/customer/send-message", chatControllers.send_customer_message);
-// router.get("/get-product-count", cartControllers.get_product_count);
+router.get("/seller/get-customers/:sellerId", chatControllers.get_customers);
 
 export default router;
