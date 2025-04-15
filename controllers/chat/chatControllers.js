@@ -251,6 +251,24 @@ class chatControllers {
       console.log(error.message);
     }
   };
+
+  // The get_customers function retrieves all the customers associated with a particular seller
+  get_customers = async (req, res) => {
+    // console.log(req.params);
+    const { sellerId } = req.params;
+    try {
+      // Retrieve the customers linked to this seller
+      const customerData = await sellerCustomerModel.findOne({
+        userId: sellerId,
+      });
+      responseReturn(res, 200, {
+        // customers: customerData.linkedUsers,
+        linkedCustomers: customerData.linkedUsers,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 }
 
 export default new chatControllers();
