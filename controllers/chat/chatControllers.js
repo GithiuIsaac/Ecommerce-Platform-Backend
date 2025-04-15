@@ -187,6 +187,7 @@ class chatControllers {
   // The send_customer_message function handles sending a customer message to a seller
   send_customer_message = async (req, res) => {
     const { customerId, customerName, msg, sellerId, sellerName } = req.body;
+    // console.log(req.body);
 
     try {
       const message = await sellerCustomerMsgModel.create({
@@ -197,8 +198,10 @@ class chatControllers {
         receiverName: sellerName,
       });
 
-      // Indexing the seller data
+      // Customer's View
+      // Index the seller data
       // Retrieve the sellers linked to this customer
+      // The last conversation should be in the top position.
       const sellerData = await sellerCustomerModel.findOne({
         userId: customerId,
       });
@@ -219,8 +222,10 @@ class chatControllers {
         { linkedUsers: linkedSellers }
       );
 
-      // Indexing the customer data
+      // Seller's View
+      // Index the customer data
       // Retrieve the customers linked to this seller
+      // The last conversation should be in the top position.
       const customerData = await sellerCustomerModel.findOne({
         userId: sellerId,
       });
@@ -241,7 +246,7 @@ class chatControllers {
         { linkedUsers: linkedCustomers }
       );
 
-      responseReturn(res, 201, { msg });
+      responseReturn(res, 201, { message });
     } catch (error) {
       console.log(error.message);
     }
