@@ -13,5 +13,9 @@ router.get(
   authMiddleware,
   chatControllers.get_customer_messages
 );
-
+router.post(
+  "/seller/send-message",
+  authMiddleware,
+  chatControllers.send_seller_message
+);
 export default router;
