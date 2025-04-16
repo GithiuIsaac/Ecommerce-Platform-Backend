@@ -4,9 +4,14 @@ import chatControllers from "../../controllers/chat/chatControllers.js";
 
 const router = Router();
 
-// The authMiddleware ensures no access for unauthenticated users
 router.post("/link-users", chatControllers.link_users);
 router.post("/customer/send-message", chatControllers.send_customer_message);
 router.get("/seller/get-customers/:sellerId", chatControllers.get_customers);
+// Use authMiddleware to get the req.id
+router.get(
+  "/seller/get-customer-messages/:customerId",
+  authMiddleware,
+  chatControllers.get_customer_messages
+);
 
 export default router;
