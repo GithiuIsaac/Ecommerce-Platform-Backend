@@ -58,6 +58,12 @@ function addSeller(sellerId, socketId, userInfo) {
   }
 }
 
+function findCustomer(customerId) {
+  return allCustomers.find((customer) => customer.customerId === customerId);
+}
+
+function sendSellerMessage(receiverId, socketId) {}
+
 io.on("connection", (socket) => {
   // console.log("User connected");
   console.log("Socket server running...");
@@ -71,6 +77,17 @@ io.on("connection", (socket) => {
   socket.on("add_seller", (sellerId, userInfo) => {
     console.log("Seller added: ", userInfo);
     addSeller(sellerId, socket.id, userInfo);
+  });
+
+  socket.on("send_seller_message", (message) => {
+    console.log(message);
+    // Pass this message to the appropriate customer, who is identified by the receiverId
+    const customer = findCustomer(message.receiverId);
+    console.log("Customer: ", customer);
+
+    if (customer) {
+      socket.to(customer.socketId).emit("receive_seller_message", message);
+    }
   });
 
   socket.on("disconnect", () => {
