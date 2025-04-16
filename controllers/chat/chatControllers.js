@@ -18,13 +18,13 @@ class chatControllers {
       // Only proceed if sellerId is provided
       if (sellerId !== "") {
         // Retrieves both seller and customer information from their respective models
-        console.log("1. SellerId is present in the request:", sellerId);
+        // console.log("1. SellerId is present in the request:", sellerId);
         const seller = await sellerModel.findById(sellerId);
-        console.log("2. Seller is: ", seller);
+        // console.log("2. Seller is: ", seller);
 
         // Retrieve the customer's data from the DB
         const customer = await customerModel.findById(customerId);
-        console.log("3. Customer is: ", customer);
+        // console.log("3. Customer is: ", customer);
 
         // Check existing customer-sellers relationship
         // myId - customerId
@@ -47,11 +47,11 @@ class chatControllers {
             },
           ],
         });
-        console.log("4. Existing relationship check result:", checkSeller);
+        // console.log("4. Existing relationship check result:", checkSeller);
 
         // Create customer->seller relationship if it doesn't exist
         if (!checkSeller) {
-          console.log("5. No existing relationship - creating new one");
+          // console.log("5. No existing relationship - creating new one");
           // If no relationship exists with this seller, create one, and store the seller's details in the customer's linkedUsers array
           const updateResult = await sellerCustomerModel.updateOne(
             { userId: customerId, userType: "customer" },
@@ -70,7 +70,7 @@ class chatControllers {
             // Without upsert: true, the updateOne operation would just fail silently when trying to update a non-existent document
             // With upsert: true, the updateOne operation will create a new document if it doesn't exist
           );
-          console.log("6. Update result:", updateResult);
+          // console.log("6. Update result:", updateResult);
         }
 
         // Check existing seller-customers relationship
@@ -94,11 +94,11 @@ class chatControllers {
             },
           ],
         });
-        console.log("7. Existing relationship check result:", checkCustomer);
+        // console.log("7. Existing relationship check result:", checkCustomer);
 
         // Create seller->customer relationship if it doesn't exist
         if (!checkCustomer) {
-          console.log("8. No existing relationship - creating new one");
+          // console.log("8. No existing relationship - creating new one");
           // If no relationship exists with this customer, create one, and store the customer's details in the seller's linkedUsers array
           const updateResult = await sellerCustomerModel.updateOne(
             { userId: sellerId, userType: "seller" },
@@ -117,7 +117,7 @@ class chatControllers {
             // Without upsert: true, the updateOne operation would just fail silently when trying to update a non-existent document
             // With upsert: true, the updateOne operation will create a new document if it doesn't exist
           );
-          console.log("9. Update result:", updateResult);
+          // console.log("9. Update result:", updateResult);
         }
         // When the request is sent from the chat dashboard, check that the receiverId is the appropriate sellerId, or if the receivedId is the customerId
         // Two-way communication, customer -> seller, and seller -> customer
@@ -146,20 +146,20 @@ class chatControllers {
             },
           ],
         });
-        console.log("10. Retrieved messages:", messages.length);
+        // console.log("10. Retrieved messages:", messages.length);
 
         // Get all sellers linked to this customer
         // The customer should be able to view their existing chats with sellers, and the sellers are listed on the Chat dashboard page.
         const linkedSellers = await sellerCustomerModel.findOne({
           userId: customerId,
         });
-        console.log("11. Linked sellers data:", linkedSellers);
+        // console.log("11. Linked sellers data:", linkedSellers);
 
         // Return the current selected seller chat/communication
         const currentSeller = linkedSellers.linkedUsers.find(
           (seller) => seller.userId === sellerId
         );
-        console.log("12. Current seller details:", currentSeller);
+        // console.log("12. Current seller details:", currentSeller);
 
         responseReturn(res, 200, {
           linkedSellers: linkedSellers.linkedUsers,
@@ -171,10 +171,10 @@ class chatControllers {
         const linkedSellers = await sellerCustomerModel.findOne({
           userId: customerId,
         });
-        console.log(
-          "14. No sellerId provided - returning only linked sellers:",
-          linkedSellers?.linkedUsers?.length
-        );
+        // console.log(
+        //   "14. No sellerId provided - returning only linked sellers:",
+        //   linkedSellers?.linkedUsers?.length
+        // );
         responseReturn(res, 200, {
           linkedSellers: linkedSellers.linkedUsers,
         });
@@ -316,12 +316,12 @@ class chatControllers {
           },
         ],
       });
-      console.log("Retrieved messages:", messages.length);
+      // console.log("Retrieved messages:", messages.length);
 
       // The customers linked to this seller are already retrieved by the get_customers method, and displayed on the seller chat dashboard.
       // To get the current customer:
       const currentCustomer = await customerModel.findById(customerId);
-      console.log("Current customer details:", currentCustomer);
+      // console.log("Current customer details:", currentCustomer);
 
       responseReturn(res, 200, {
         currentCustomer,
