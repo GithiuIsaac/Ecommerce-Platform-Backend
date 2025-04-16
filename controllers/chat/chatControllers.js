@@ -331,6 +331,76 @@ class chatControllers {
       console.log(error.message);
     }
   };
+
+  // The send_seller_message function handles sending a seller message to a customer
+  send_seller_message = async (req, res) => {
+    const { customerId, customerName, msg, sellerId, sellerName } = req.body;
+    // console.log(req.body);
+
+    try {
+      const message = await sellerCustomerMsgModel.create({
+        // Seller is the sender
+        senderId: sellerId,
+        senderName: sellerName,
+        message: msg,
+        receiverId: customerId,
+        receiverName: customerName,
+        // Customer is the receiver
+      });
+
+      // Seller's View (Sender)
+      // Index the customer data
+      // Retrieve the customers linked to this seller
+      // The last conversation should be in the top position.
+      const customerData = await sellerCustomerModel.findOne({
+        userId: sellerId,
+      });
+      let linkedCustomers = customerData.linkedUsers;
+      let customerIndex = linkedCustomers.findIndex(
+        (customer) => customer.userId === customerId
+      );
+
+      while (customerIndex > 0) {
+        let temp = linkedCustomers[customerIndex];
+        linkedCustomers[customerIndex] = linkedCustomers[customerIndex - 1];
+        linkedCustomers[customerIndex - 1] = temp;
+        customerIndex--;
+      }
+
+      await sellerCustomerModel.updateOne(
+        { userId: sellerId },
+        { linkedUsers: linkedCustomers }
+      );
+
+      // Customer's View (Receiver)
+      // Index the seller data
+      // Retrieve the sellers linked to this customer
+      // The last conversation should be in the top position.
+      const sellerData = await sellerCustomerModel.findOne({
+        userId: customerId,
+      });
+      let linkedSellers = sellerData.linkedUsers;
+      let sellerIndex = linkedSellers.findIndex(
+        (seller) => seller.userId === sellerId
+      );
+
+      while (sellerIndex > 0) {
+        let temp = linkedSellers[sellerIndex];
+        linkedSellers[sellerIndex] = linkedSellers[sellerIndex - 1];
+        linkedSellers[sellerIndex - 1] = temp;
+        sellerIndex--;
+      }
+
+      await sellerCustomerModel.updateOne(
+        { userId: customerId },
+        { linkedUsers: linkedSellers }
+      );
+
+      responseReturn(res, 201, { message });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 }
 
 export default new chatControllers();
