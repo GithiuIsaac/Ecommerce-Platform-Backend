@@ -62,7 +62,12 @@ function findCustomer(customerId) {
   return allCustomers.find((customer) => customer.customerId === customerId);
 }
 
-function sendSellerMessage(receiverId, socketId) {}
+function remove(socketId) {
+  allCustomers = allCustomers.filter(
+    (customer) => customer.socketId !== socketId
+  );
+  allSellers = allSellers.filter((seller) => seller.socketId !== socketId);
+}
 
 io.on("connection", (socket) => {
   // console.log("User connected");
@@ -71,28 +76,31 @@ io.on("connection", (socket) => {
   // Add customer
   socket.on("link_users", (customerId, customerInfo) => {
     linkUsers(customerId, socket.id, customerInfo);
+    io.emit("active_sellers", allSellers);
   });
 
   // Add seller
   socket.on("add_seller", (sellerId, userInfo) => {
-    console.log("Seller added: ", userInfo);
+    // console.log("Seller added: ", userInfo);
     addSeller(sellerId, socket.id, userInfo);
+    io.emit("active_sellers", allSellers);
   });
 
   socket.on("send_seller_message", (message) => {
-    console.log(message);
+    // console.log(message);
     // Pass this message to the appropriate customer, who is identified by the receiverId
     const customer = findCustomer(message.receiverId);
-    console.log("Customer: ", customer);
+    // console.log("Customer: ", customer);
 
-    if (customer) {
+    if (customer !== undefined) {
       socket.to(customer.socketId).emit("receive_seller_message", message);
     }
   });
 
   socket.on("disconnect", () => {
-    // console.log("User disconnected");
-    console.log("Socket server disconnected");
+    console.log("User disconnected");
+    remove(socket.id);
+    io.emit("active_sellers", allSellers);
   });
 });
 
