@@ -269,6 +269,68 @@ class chatControllers {
       console.log(error.message);
     }
   };
+
+  // The get_customer_messages function retrieves all the messages associated with a particular seller and customer
+  get_customer_messages = async (req, res) => {
+    // console.log(req.params);
+    const { customerId } = req.params;
+    // console.log(req);
+    // sellerId
+    const { id } = req;
+
+    try {
+      // Two-way communication, customer -> seller, and seller -> customer
+      // This query retrieves two-way conversations between a seller and a customer
+      // - Messages sent from seller to customer
+      // - Messages sent from customer to seller
+      const messages = await sellerCustomerMsgModel.find({
+        // $or matches either of two conditions, Returns an array of all messages that match either condition
+        $or: [
+          // First condition: Messages FROM seller TO customer, Seller → Customer
+          // Finds messages where the seller is the sender and the customer is the receiver
+          {
+            $and: [
+              {
+                receiverId: { $eq: customerId },
+                // Message received by customer
+              },
+              {
+                senderId: { $eq: id },
+                // Message sent by seller
+              },
+            ],
+          },
+          // Second condition: Messages FROM customer TO seller, Customer → Seller
+          // Finds messages where the customer is the sender and the seller is the receiver
+          {
+            $and: [
+              {
+                receiverId: { $eq: id },
+                // Message received by seller
+              },
+              {
+                senderId: { $eq: customerId },
+                // Message sent by customer
+              },
+            ],
+          },
+        ],
+      });
+      console.log("Retrieved messages:", messages.length);
+
+      // The customers linked to this seller are already retrieved by the get_customers method, and displayed on the seller chat dashboard.
+      // To get the current customer:
+      const currentCustomer = await customerModel.findById(customerId);
+      console.log("Current customer details:", currentCustomer);
+
+      responseReturn(res, 200, {
+        currentCustomer,
+        messages,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 }
 
 export default new chatControllers();
