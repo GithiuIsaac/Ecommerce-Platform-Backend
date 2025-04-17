@@ -62,6 +62,10 @@ function findCustomer(customerId) {
   return allCustomers.find((customer) => customer.customerId === customerId);
 }
 
+function findSeller(sellerId) {
+  return allSellers.find((seller) => seller.sellerId === sellerId);
+}
+
 function remove(socketId) {
   allCustomers = allCustomers.filter(
     (customer) => customer.socketId !== socketId
@@ -94,6 +98,18 @@ io.on("connection", (socket) => {
 
     if (customer !== undefined) {
       socket.to(customer.socketId).emit("receive_seller_message", message);
+      // receive_seller_message is called from the seller chat dashboard
+    }
+  });
+
+  socket.on("send_customer_message", (message) => {
+    // console.log(message);
+    // Pass this message to the appropriate seller, who is identified by the receiverId
+    const seller = findSeller(message.receiverId);
+    // console.log("Seller: ", seller);
+
+    if (seller !== undefined) {
+      socket.to(seller.socketId).emit("receive_customer_message", message);
     }
   });
 
@@ -101,6 +117,7 @@ io.on("connection", (socket) => {
     console.log("User disconnected");
     remove(socket.id);
     io.emit("active_sellers", allSellers);
+    io.emit("active_customers", allCustomers);
   });
 });
 
