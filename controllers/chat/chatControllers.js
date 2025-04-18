@@ -415,6 +415,31 @@ class chatControllers {
       console.log(error.message);
     }
   };
+
+  // The send_admin_message function handles sending a message from the admin to a seller
+  send_admin_message = async (req, res) => {
+    // const { sellerId, msg } = req.body;
+    console.log(req.body);
+    // {
+    //   senderId: '',
+    //   receiverId: '67a3e31a6034be4e1f6e8820',
+    //   msg: 'Hey, this is a test message',
+    //   senderName: 'Admin'
+    // }
+
+    try {
+      // const message = await sellerCustomerMsgModel.create({
+      //   senderId: admin._id,
+      //   senderName: admin.name,
+      //   message: msg,
+      //   receiverId: sellerId,
+      //   receiverName: sellerName,
+      // });
+      // responseReturn(res, 201, { message });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 }
 
 export default new chatControllers();
