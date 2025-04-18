@@ -97,5 +97,14 @@ class customerAuthControllers {
       responseReturn(res, 500, { error: "Internal Server Error" });
     }
   };
+
+  customer_logout = async (req, res) => {
+    // Clear the customerToken cookie
+    // res.clearCookie("customerToken");
+    res.cookie("customerToken", "", {
+      expires: new Date(Date.now()),
+    });
+    responseReturn(res, 200, { message: "You are now logged out." });
+  };
 }
 export default new customerAuthControllers();
