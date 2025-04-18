@@ -18,4 +18,5 @@ router.post(
   authMiddleware,
   chatControllers.send_seller_message
 );
+router.get("/admin/get-sellers", authMiddleware, chatControllers.get_sellers);
 export default router;

@@ -401,6 +401,20 @@ class chatControllers {
       console.log(error.message);
     }
   };
+
+  // Admin <-> Seller chat
+  // The get_sellers function retrieves all the sellers
+  get_sellers = async (req, res) => {
+    try {
+      // Retrieve all seller from the seller table
+      const sellers = await sellerModel.find();
+      responseReturn(res, 200, {
+        sellers,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 }
 
 export default new chatControllers();
