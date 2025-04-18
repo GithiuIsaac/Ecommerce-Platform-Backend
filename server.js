@@ -39,6 +39,7 @@ const io = new Server(server, {
 
 var allCustomers = [];
 var allSellers = [];
+var admin = {};
 
 function linkUsers(customerId, socketId, customerInfo) {
   const checkCustomer = allCustomers.some(
@@ -111,6 +112,21 @@ io.on("connection", (socket) => {
     if (seller !== undefined) {
       socket.to(seller.socketId).emit("receive_customer_message", message);
     }
+  });
+
+  // Add admin
+  socket.on("add_admin", (adminInfo) => {
+    // Create a new admin object with the spread operator
+    admin = {
+      ...adminInfo,
+      socketId: socket.id,
+    };
+    // Remove sensitive data
+    delete admin.email;
+    delete admin.password;
+    console.log("Admin object: ", admin);
+
+    io.emit("active_sellers", allSellers);
   });
 
   socket.on("disconnect", () => {
