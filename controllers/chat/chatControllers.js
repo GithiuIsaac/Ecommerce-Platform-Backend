@@ -419,12 +419,11 @@ class chatControllers {
 
   // The send_admin_message function handles sending a message from the admin to a seller
   send_admin_message = async (req, res) => {
-    const { id } = req;
-    const { msg, receiverId, senderName, receiverName } = req.body;
+    const { senderId, msg, receiverId, senderName, receiverName } = req.body;
 
     try {
       const message = await adminSellerMsgModel.create({
-        senderId: id,
+        senderId: senderId,
         senderName: senderName,
         message: msg,
         receiverId: receiverId,
@@ -438,9 +437,10 @@ class chatControllers {
 
   // The get_admin_messages function retrieves all the messages associated with a particular seller and admin
   get_admin_messages = async (req, res) => {
-    const { sellerId } = req.params;
-    // adminId/senderId
-    const { id } = req;
+    const { receiverId } = req.params;
+    // console.log("Receiver Id: ", receiverId);
+    // admin - can be receiver or sender
+    const id = "";
 
     try {
       // Two-way communication, admin -> seller, and seller -> admin
@@ -455,7 +455,7 @@ class chatControllers {
           {
             $and: [
               {
-                receiverId: { $eq: sellerId },
+                receiverId: { $eq: receiverId },
                 // Message received by seller
               },
               {
@@ -473,7 +473,7 @@ class chatControllers {
                 // Message received by admin
               },
               {
-                senderId: { $eq: sellerId },
+                senderId: { $eq: receiverId },
                 // Message sent by seller
               },
             ],
@@ -482,11 +482,70 @@ class chatControllers {
       });
 
       // The sellers are already retrieved by the get_sellers method, and displayed on the admin chat dashboard.
-      // To get the current seller:
-      const currentSeller = await sellerModel.findById(sellerId);
-
+      // To get the current seller, only if the receiverId is present - This means that the method is being called by the admin :
+      var currentSeller = {};
+      if (receiverId) {
+        currentSeller = await sellerModel.findById(receiverId);
+      }
       responseReturn(res, 200, {
         currentSeller,
+        sellerAdminMessages: messages,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  // The get_seller_messages function retrieves all the messages associated with a particular seller and admin
+  get_seller_messages = async (req, res) => {
+    // ReceiverId is the admin
+    const receiverId = "";
+    // seller is the sender
+    const { id } = req;
+
+    try {
+      // Two-way communication, admin -> seller, and seller -> admin
+      // This query retrieves two-way conversations between an admin and a seller
+      // - Messages sent from admin to seller
+      // - Messages sent from seller to admin
+      const messages = await adminSellerMsgModel.find({
+        // $or matches either of two conditions, Returns an array of all messages that match either condition
+        $or: [
+          // First condition: Messages FROM seller TO admin, Seller → Admin
+          // Finds messages where the seller is the sender and the admin is the receiver
+
+          {
+            $and: [
+              {
+                receiverId: { $eq: receiverId },
+
+                // Message received by admin
+              },
+              {
+                senderId: { $eq: id },
+                // Message sent by seller
+              },
+            ],
+          },
+          // Second condition: Messages FROM admin TO seller, Admin → Seller
+          // Finds messages where the admin is the sender and the seller is the receiver
+          {
+            $and: [
+              {
+                receiverId: { $eq: id },
+                // Message received by seller
+              },
+              {
+                senderId: { $eq: receiverId },
+
+                // Message sent by admin
+              },
+            ],
+          },
+        ],
+      });
+
+      responseReturn(res, 200, {
         sellerAdminMessages: messages,
       });
     } catch (error) {
