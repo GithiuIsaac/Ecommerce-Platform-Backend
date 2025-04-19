@@ -17,7 +17,7 @@ const adminSellerMsgSchema = new Schema(
     },
     receiverId: {
       type: String,
-      required: true,
+      default: "",
     },
     message: {
       type: String,
