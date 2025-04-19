@@ -11,10 +11,10 @@ const adminSellerMsgSchema = new Schema(
       type: String,
       default: "",
     },
-    // receiverName: {
-    //   type: String,
-    //   required: true,
-    // },
+    receiverName: {
+      type: String,
+      default: "",
+    },
     receiverId: {
       type: String,
       required: true,
