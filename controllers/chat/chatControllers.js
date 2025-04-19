@@ -4,6 +4,7 @@ import sellerModel from "../../models/sellerModel.js";
 import customerModel from "../../models/customerModel.js";
 import sellerCustomerModel from "../../models/chat/sellerCustomerModel.js";
 import sellerCustomerMsgModel from "../../models/chat/sellerCustomerMessages.js";
+import adminSellerMsgModel from "../../models/chat/adminSellerMessages.js";
 
 class chatControllers {
   // This method creates a bi-directional relationship/connection between an existing seller and an existing customer in the sellerCustomerModel
@@ -418,24 +419,16 @@ class chatControllers {
 
   // The send_admin_message function handles sending a message from the admin to a seller
   send_admin_message = async (req, res) => {
-    // const { sellerId, msg } = req.body;
-    console.log(req.body);
-    // {
-    //   senderId: '',
-    //   receiverId: '67a3e31a6034be4e1f6e8820',
-    //   msg: 'Hey, this is a test message',
-    //   senderName: 'Admin'
-    // }
+    const { senderId, msg, receiverId, senderName } = req.body;
 
     try {
-      // const message = await sellerCustomerMsgModel.create({
-      //   senderId: admin._id,
-      //   senderName: admin.name,
-      //   message: msg,
-      //   receiverId: sellerId,
-      //   receiverName: sellerName,
-      // });
-      // responseReturn(res, 201, { message });
+      const message = await adminSellerMsgModel.create({
+        senderId: senderId,
+        senderName: senderName,
+        message: msg,
+        receiverId: receiverId,
+      });
+      responseReturn(res, 201, { message });
     } catch (error) {
       console.log(error.message);
     }
