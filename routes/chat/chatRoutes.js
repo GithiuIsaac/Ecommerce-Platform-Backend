@@ -24,4 +24,10 @@ router.post(
   authMiddleware,
   chatControllers.send_admin_message
 );
+router.get(
+  "/admin/get-admin-messages/:sellerId",
+  authMiddleware,
+  chatControllers.get_admin_messages
+);
+
 export default router;
