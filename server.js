@@ -114,6 +114,26 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("send_admin_message", (message) => {
+    // console.log(message);
+    // Pass this message to the appropriate seller, who is identified by the receiverId
+    const seller = findSeller(message.receiverId);
+    // console.log("seller: ", seller);
+
+    if (seller !== undefined) {
+      socket.to(seller.socketId).emit("receive_admin_message", message);
+      // receive_seller_message is called from the seller admin chat dashboard
+    }
+  });
+
+  socket.on("send_seller_to_admin_message", (message) => {
+    // No recipient information necessary, since the admin is the only recipient
+    if (admin.socketId) {
+      socket.to(admin.socketId).emit("receive_seller_message", message);
+      // receive_seller_message is called from the seller admin chat dashboard
+    }
+  });
+
   // Add admin
   socket.on("add_admin", (adminInfo) => {
     // Create a new admin object with the spread operator
