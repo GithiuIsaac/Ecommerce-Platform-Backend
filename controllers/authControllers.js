@@ -121,7 +121,8 @@ class authControllers {
         // Confirm created seller
         console.log(seller);
         await sellerCustomerModel.create({
-          sellerId: seller.id,
+          userId: seller.id,
+          userType: "seller",
         });
         // generate token
         const token = await createToken({
