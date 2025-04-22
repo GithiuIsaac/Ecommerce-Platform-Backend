@@ -236,6 +236,19 @@ class authControllers {
       responseReturn(res, 500, { error: error.message });
     }
   };
+
+  logout = async (req, res) => {
+    try {
+      // Clear the accessToken cookie
+      res.cookie("accessToken", null, {
+        expires: new Date(Date.now()),
+        httpOnly: true,
+      });
+      responseReturn(res, 200, { message: "Logout successful" });
+    } catch (error) {
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
 }
 
 export default new authControllers();

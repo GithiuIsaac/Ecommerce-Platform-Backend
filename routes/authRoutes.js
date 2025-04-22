@@ -4,12 +4,9 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-// router.get("/", (req, res) => {
-//   res.send("Hello World!");
-// });
-
 router.post("/admin-login", authControllers.admin_login);
 router.post("/seller-login", authControllers.seller_login);
+router.get("/logout", authMiddleware, authControllers.logout);
 router.get("/get-user", authMiddleware, authControllers.get_user);
 router.post("/seller-register", authControllers.seller_register);
 router.post(
