@@ -190,5 +190,48 @@ class sellerControllers {
       console.log(error.message);
     }
   };
+
+  get_inactive_sellers = async (req, res) => {
+    // console.log("Active Sellers: ", req.query);
+    const { page, searchValue, perPage } = req.query;
+    const skipPage = parseInt(perPage) * (parseInt(page) - 1);
+    try {
+      if (searchValue) {
+        // Retrieve sellers where status is "inactive"
+        const sellers = await sellerModel
+          .find({
+            $text: { $search: searchValue },
+            status: "inactive",
+          })
+          .skip(skipPage)
+          .limit(perPage)
+          .sort({ createdAt: -1 });
+        const totalSellers = await sellerModel
+          .find({
+            $text: { $search: searchValue },
+            status: "inactive",
+          })
+          .countDocuments();
+        responseReturn(res, 200, { sellers, totalSellers });
+      } else {
+        const sellers = await sellerModel
+          .find({
+            status: "inactive",
+          })
+          .skip(skipPage)
+          .limit(perPage)
+          .sort({ createdAt: -1 });
+        // Return the total number of sellers with inactive status
+        const totalSellers = await sellerModel
+          .find({
+            status: "inactive",
+          })
+          .countDocuments();
+        responseReturn(res, 200, { sellers, totalSellers });
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 }
 export default new sellerControllers();

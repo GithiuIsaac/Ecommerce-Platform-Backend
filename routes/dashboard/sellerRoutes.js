@@ -25,5 +25,10 @@ router.get(
   authMiddleware,
   sellerControllers.get_active_sellers
 );
+router.get(
+  "/get-inactive-sellers",
+  authMiddleware,
+  sellerControllers.get_inactive_sellers
+);
 
 export default router;
