@@ -15,5 +15,10 @@ router.get(
   authMiddleware,
   dashboardOrderControllers.get_admin_order
 );
+router.put(
+  "/admin/update-order-status/:orderId",
+  authMiddleware,
+  dashboardOrderControllers.admin_status_update
+);
 
 export default router;

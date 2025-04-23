@@ -95,6 +95,23 @@ class dashboardOrderControllers {
     }
   };
 
+  admin_status_update = async (req, res) => {
+    const { orderId } = req.params;
+    const { orderStatus } = req.body;
+
+    try {
+      await customerOrderModel.findByIdAndUpdate(orderId, {
+        delivery_status: orderStatus,
+      });
+      responseReturn(res, 200, { message: "Order status updated" });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, {
+        error: "Internal Server Error. Unable to update order status",
+      });
+    }
+  };
+
   get_seller_orders = async (req, res) => {
     // Retrieve the order data from the DB
     console.log(req.query);
