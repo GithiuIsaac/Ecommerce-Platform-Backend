@@ -43,6 +43,20 @@ const sellerSchema = new Schema(
   { timestamps: true }
 );
 
+sellerSchema.index(
+  {
+    name: "text",
+    email: "text",
+  },
+  {
+    // Assign priority while searching
+    weights: {
+      name: 5,
+      email: 4,
+    },
+  }
+);
+
 const sellerModel = model("sellers", sellerSchema);
 
 export default sellerModel;
