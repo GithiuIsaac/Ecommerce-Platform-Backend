@@ -152,5 +152,16 @@ class dashboardOrderControllers {
       responseReturn(res, 500, { error: error.message });
     }
   };
+
+  get_seller_order = async (req, res) => {
+    const { orderId } = req.params;
+    try {
+      const currentOrder = await adminOrderModel.findById(orderId);
+      responseReturn(res, 200, { currentOrder });
+    } catch (error) {
+      console.log("Get Seller Order Details failed: ", error.message);
+      // responseReturn(res, 404, { error: "Order not found" });
+    }
+  };
 }
 export default new dashboardOrderControllers();

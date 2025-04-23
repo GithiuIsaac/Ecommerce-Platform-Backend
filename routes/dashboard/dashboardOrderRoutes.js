@@ -27,5 +27,10 @@ router.get(
   authMiddleware,
   dashboardOrderControllers.get_seller_orders
 );
+router.get(
+  "/seller/get-order/:orderId",
+  authMiddleware,
+  dashboardOrderControllers.get_seller_order
+);
 
 export default router;
