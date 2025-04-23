@@ -21,4 +21,11 @@ router.put(
   dashboardOrderControllers.admin_status_update
 );
 
+// Seller Routes
+router.get(
+  "/seller/get-orders/:sellerId",
+  authMiddleware,
+  dashboardOrderControllers.get_seller_orders
+);
+
 export default router;

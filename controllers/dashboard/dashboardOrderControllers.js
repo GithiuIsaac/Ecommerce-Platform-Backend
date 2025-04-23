@@ -113,75 +113,43 @@ class dashboardOrderControllers {
   };
 
   get_seller_orders = async (req, res) => {
-    // Retrieve the order data from the DB
-    console.log(req.query);
-    const { page, searchValue, perPage } = req.query;
-
+    // Destructure the data received from the frontend:
     // Ideally, a seller should only be able to access their orders, and thus the seller id
-    const { id } = req;
-    // // const skipPage = parseInt(perPage) * (parseInt(page) - 1);
+    const { sellerId } = req.params;
+    let { page, searchValue, perPage } = req.query;
+    page = parseInt(page);
+    perPage = parseInt(perPage);
+    // const { id } = req;
+    // console.log("Req Id: ", id);
+    const skipPage = perPage * (page - 1);
 
+    // The seller related customer orders are stored in the adminOrderModel
     try {
-      let skipPage = "";
-      if (page && perPage) {
-        skipPage = parseInt(perPage) * (parseInt(page) - 1);
-      }
-      if (searchValue && page && perPage) {
-        // Fetch products from products table
-        const products = await productModel
-          .find({
-            $text: { $search: searchValue },
-            sellerId: id,
-          })
-          .skip(skipPage)
-          .limit(perPage)
-          .sort({ createdAt: -1 });
-
-        // Return the total number of products
-        const totalProducts = await productModel
-          .find({
-            $text: { $search: searchValue },
-            sellerId: id,
-          })
-          .countDocuments();
-
-        responseReturn(res, 200, {
-          products,
-          totalProducts,
-        });
-      } else if (searchValue === "" && page && perPage) {
-        // Fetch products from products table
-        const products = await productModel
-          .find({ sellerId: id })
-          .skip(skipPage)
-          .limit(perPage)
-          .sort({ createdAt: -1 });
-
-        // Return the total number of products
-        const totalProducts = await productModel
-          .find({ sellerId: id })
-          .countDocuments();
-
-        responseReturn(res, 200, {
-          products,
-          totalProducts,
-        });
+      if (searchValue) {
+        console.log("Search value is present: ", searchValue);
       } else {
-        // Return all products data in the products section
-        const products = await productModel
-          .find({ sellerId: id })
+        // Retrieve all the customer orders for this seller from the adminOrderModel
+        const orders = await adminOrderModel
+          .find({ sellerId })
+          .skip(skipPage)
+          .limit(perPage)
           .sort({ createdAt: -1 });
-        const totalProducts = await productModel
-          .find({ sellerId: id })
+
+        // Return all the customer orders for this seller
+        const totalOrders = await adminOrderModel
+          .find({
+            sellerId,
+          })
           .countDocuments();
 
         responseReturn(res, 200, {
-          products,
-          totalProducts,
+          orders,
+          totalOrders,
         });
       }
     } catch (error) {
-      console.log(error.message);
+      console.log("Error: ", error.message);
+      responseReturn(res, 500, { error: error.message });
     }
   };
 }
