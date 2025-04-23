@@ -3,9 +3,12 @@ import adminOrderModel from "../../models/adminOrderModel.js";
 import customerOrderModel from "../../models/customerOrderModel.js";
 import { responseReturn } from "../../utilities/response.js";
 
+import mongoose from "mongoose";
+
+const { ObjectId } = mongoose.mongo;
+
 class dashboardOrderControllers {
   get_admin_orders = async (req, res) => {
-    console.log("Query Params are: ", req.query);
     // Destructure the data received from the frontend:
     let { page, searchValue, perPage } = req.query;
     page = parseInt(page);
@@ -65,20 +68,31 @@ class dashboardOrderControllers {
     }
   };
 
-  get_order = async (req, res) => {
-    console.log(req.params);
-    // const { productId } = req.params;
-
-    // console.log("Fetching product by id...", productId);
-
-    // try {
-    //   const product = await productModel.findById(productId);
-    //   console.log(product);
-    //   responseReturn(res, 200, { product });
-    // } catch (error) {
-    //   console.log(error.message);
-    //   responseReturn(res, 404, { error: "Product not found" });
-    // }
+  get_admin_order = async (req, res) => {
+    const { orderId } = req.params;
+    // console.log("Fetching order by id...", orderId);
+    try {
+      // const currentOrder = await customerOrderModel.findById(orderId);
+      const order = await customerOrderModel.aggregate([
+        {
+          $match: { _id: new ObjectId(orderId) },
+          // When the customer_orders table _id matches the orderId
+        },
+        {
+          // Create a relationship with the admin_orders table
+          $lookup: {
+            from: "admin_orders",
+            localField: "_id",
+            foreignField: "orderId", // Field in the admin_orders table which references the customer_orders table _id field
+            as: "sub_order",
+          },
+        },
+      ]);
+      responseReturn(res, 200, { currentOrder: order[0] });
+    } catch (error) {
+      console.log("Get Admin Order Details failed: ", error.message);
+      // responseReturn(res, 404, { error: "Order not found" });
+    }
   };
 
   get_seller_orders = async (req, res) => {

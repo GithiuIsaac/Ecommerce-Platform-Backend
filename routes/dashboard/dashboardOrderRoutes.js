@@ -6,14 +6,14 @@ const router = Router();
 
 // The authMiddleware ensures no access for unauthenticated users
 router.get(
-  "/admin/get-admin-orders",
+  "/admin/get-orders",
   authMiddleware,
   dashboardOrderControllers.get_admin_orders
 );
 router.get(
   "/admin/get-order/:orderId",
   authMiddleware,
-  dashboardOrderControllers.get_order
+  dashboardOrderControllers.get_admin_order
 );
 
 export default router;
