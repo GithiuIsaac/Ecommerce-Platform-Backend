@@ -143,5 +143,52 @@ class sellerControllers {
       console.log(error.message);
     }
   };
+
+  get_active_sellers = async (req, res) => {
+    // console.log("Active Sellers: ", req.query);
+    const { page, searchValue, perPage } = req.query;
+    const skipPage = parseInt(perPage) * (parseInt(page) - 1);
+
+    try {
+      if (searchValue) {
+        // Retrieve sellers where status is "active"
+        const sellers = await sellerModel
+          .find({
+            $text: { $search: searchValue },
+            status: "active",
+          })
+          .skip(skipPage)
+          .limit(perPage)
+          .sort({ createdAt: -1 });
+
+        const totalSellers = await sellerModel
+          .find({
+            $text: { $search: searchValue },
+            status: "active",
+          })
+          .countDocuments();
+
+        responseReturn(res, 200, { sellers, totalSellers });
+      } else {
+        const sellers = await sellerModel
+          .find({
+            status: "active",
+          })
+          .skip(skipPage)
+          .limit(perPage)
+          .sort({ createdAt: -1 });
+        // Return the total number of sellers with active status
+        const totalSellers = await sellerModel
+          .find({
+            status: "active",
+          })
+          .countDocuments();
+
+        responseReturn(res, 200, { sellers, totalSellers });
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 }
 export default new sellerControllers();
