@@ -163,5 +163,21 @@ class dashboardOrderControllers {
       // responseReturn(res, 404, { error: "Order not found" });
     }
   };
+
+  seller_status_update = async (req, res) => {
+    const { orderId } = req.params;
+    const { orderStatus } = req.body;
+    try {
+      await adminOrderModel.findByIdAndUpdate(orderId, {
+        delivery_status: orderStatus,
+      });
+      responseReturn(res, 200, { message: "Order status updated" });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, {
+        error: "Internal Server Error. Unable to update order status",
+      });
+    }
+  };
 }
 export default new dashboardOrderControllers();

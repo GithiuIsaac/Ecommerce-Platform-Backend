@@ -32,5 +32,10 @@ router.get(
   authMiddleware,
   dashboardOrderControllers.get_seller_order
 );
+router.put(
+  "/seller/update-order-status/:orderId",
+  authMiddleware,
+  dashboardOrderControllers.seller_status_update
+);
 
 export default router;
