@@ -10,6 +10,11 @@ router.get(
   authMiddleware,
   paymentControllers.connect_payment_account
 );
+router.put(
+  "/enable-payment-account/:activeCode",
+  authMiddleware,
+  paymentControllers.enable_payment_account
+);
 
 // router.post(
 //   "/update-seller-status",
