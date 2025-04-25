@@ -74,5 +74,36 @@ class paymentControllers {
       console.log("Error connecting Stripe account: ", error.message);
     }
   };
+
+  enable_payment_account = async (req, res) => {
+    const { activeCode } = req.params;
+    const { id } = req;
+
+    try {
+      const paymentInfo = await paymentAccountModel.findOne({
+        sellerId: id,
+        code: activeCode,
+      });
+
+      if (paymentInfo) {
+        // Update the seller's status to active
+        await sellerModel.findByIdAndUpdate(id, {
+          paymentAccount: "active",
+        });
+        // Delete the payment account
+        // await paymentAccountModel.deleteOne({ sellerId: id });
+        responseReturn(res, 200, {
+          message: "Payment account enabled successfully",
+        });
+      } else {
+        responseReturn(res, 404, { error: "Invalid active code" });
+      }
+    } catch (error) {
+      console.log("Error enabling payment account: ", error.message);
+      responseReturn(res, 500, {
+        error: "Internal Server Error: Payment account could not be enabled.",
+      });
+    }
+  };
 }
 export default new paymentControllers();
