@@ -3,8 +3,17 @@ import adminOrderModel from "../../models/adminOrderModel.js";
 import cartModel from "../../models/cartModel.js";
 import moment from "moment";
 import { responseReturn } from "../../utilities/response.js";
+import Stripe from "stripe";
 
 class orderControllers {
+  // Initialize Stripe with your secret key
+  // stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  constructor() {
+    this.stripe = new Stripe(
+      "sk_test_51RHEBHQ6RIDGLuyfki7mTXNBiP164Wveh181QdW3C7WGJvmF2SwSBYqMDn6oSwp4ivUyfM2UIbVNo2QE0OtxeAWj00x3ObUHqn"
+    );
+  }
+
   paymentCheck = async (id) => {
     try {
       const order = await customerOrderModel.findById(id);
@@ -153,6 +162,76 @@ class orderControllers {
       // responseReturn(res, 200, { order });
     } catch (error) {
       responseReturn(res, 500, { error: error.message });
+    }
+  };
+
+  create_payment = async (req, res) => {
+    // console.log(req.body);
+    const { totalPrice } = req.body;
+
+    try {
+      const payment = await this.stripe.paymentIntents.create({
+        amount: totalPrice * 100,
+        currency: "kes",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+      console.log("Payment is: ", payment);
+      // Response from Stripe:
+      // Payment is:  {
+      //   id: 'pi_3RIComQ6RIDGLuyf15ISnLpC',
+      //   object: 'payment_intent',
+      //   amount: 2997220,
+      //   amount_capturable: 0,
+      //   amount_details: { tip: {} },
+      //   amount_received: 0,
+      //   application: null,
+      //   application_fee_amount: null,
+      //   automatic_payment_methods: { allow_redirects: 'always', enabled: true },
+      //   canceled_at: null,
+      //   cancellation_reason: null,
+      //   capture_method: 'automatic_async',
+      //   client_secret: 'pi_3RIComQ6RIDGLuyf15ISnLpC_secret_oF9ZNgHFJBWthltDMcTTLkQx7',
+      //   confirmation_method: 'automatic',
+      //   created: 1745689632,
+      //   currency: 'kes',
+      //   customer: null,
+      //   description: null,
+      //   invoice: null,
+      //   last_payment_error: null,
+      //   latest_charge: null,
+      //   livemode: false,
+      //   metadata: {},
+      //   next_action: null,
+      //   on_behalf_of: null,
+      //   payment_method: null,
+      //   payment_method_configuration_details: { id: 'pmc_1RHEBmQ6RIDGLuyfBEVSXIbE', parent: null },
+      //   payment_method_options: {
+      //     card: {
+      //       installments: null,
+      //       mandate_options: null,
+      //       network: null,
+      //       request_three_d_secure: 'automatic'
+      //     },
+      //     link: { persistent_token: null }
+      //   },
+      //   payment_method_types: [ 'card', 'link' ],
+      //   processing: null,
+      //   receipt_email: null,
+      //   review: null,
+      //   setup_future_usage: null,
+      //   shipping: null,
+      //   source: null,
+      //   statement_descriptor: null,
+      //   statement_descriptor_suffix: null,
+      //   status: 'requires_payment_method',
+      //   transfer_data: null,
+      //   transfer_group: null
+      // }
+      responseReturn(res, 200, { clientSecret: payment.client_secret });
+    } catch (error) {
+      console.log(error.message);
     }
   };
 }
