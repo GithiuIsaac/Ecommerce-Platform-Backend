@@ -26,4 +26,11 @@ router.post(
   paymentControllers.submit_payment_request
 );
 
+// Admin Routes
+router.get(
+  "/payment-requests",
+  authMiddleware,
+  paymentControllers.get_payment_requests
+);
+
 export default router;
