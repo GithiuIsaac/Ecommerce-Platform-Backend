@@ -15,7 +15,11 @@ router.put(
   authMiddleware,
   paymentControllers.enable_payment_account
 );
-
+router.get(
+  "/seller-payment-details/:sellerId",
+  authMiddleware,
+  paymentControllers.seller_payment_details
+);
 // router.post(
 //   "/update-seller-status",
 //   authMiddleware,
