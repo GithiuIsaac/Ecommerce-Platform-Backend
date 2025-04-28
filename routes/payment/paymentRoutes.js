@@ -20,10 +20,10 @@ router.get(
   authMiddleware,
   paymentControllers.seller_payment_details
 );
-// router.post(
-//   "/update-seller-status",
-//   authMiddleware,
-//   sellerControllers.update_seller_status
-// );
+router.post(
+  "/payment-request",
+  authMiddleware,
+  paymentControllers.submit_payment_request
+);
 
 export default router;
