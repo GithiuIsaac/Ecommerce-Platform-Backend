@@ -177,5 +177,27 @@ class paymentControllers {
       console.log("Error getting seller payment details: ", error.message);
     }
   };
+
+  submit_payment_request = async (req, res) => {
+    // Destructure the data received from the frontend
+    const { amount, sellerId } = req.body;
+    try {
+      // Create the payment request in the paymentRequest table
+      const paymentRequest = await paymentRequestModel.create({
+        sellerId,
+        amount: parseInt(amount),
+      });
+
+      responseReturn(res, 200, {
+        message: "Withdrawal request submitted successfully",
+        paymentRequest,
+      });
+    } catch (error) {
+      responseReturn(res, 500, {
+        error:
+          "Internal Server Error: Withdrawal request could not be submitted.",
+      });
+    }
+  };
 }
 export default new paymentControllers();
