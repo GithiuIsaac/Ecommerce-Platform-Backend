@@ -4,6 +4,11 @@ import cartModel from "../../models/cartModel.js";
 import moment from "moment";
 import { responseReturn } from "../../utilities/response.js";
 import Stripe from "stripe";
+import shopWalletModel from "../../models/payment/shopWalletModel.js";
+import mongoose from "mongoose";
+import sellerWalletModel from "../../models/payment/sellerWalletModel.js";
+
+const { ObjectId } = mongoose.mongo;
 
 class orderControllers {
   // Initialize Stripe with your secret key
@@ -232,6 +237,49 @@ class orderControllers {
       responseReturn(res, 200, { clientSecret: payment.client_secret });
     } catch (error) {
       console.log(error.message);
+    }
+  };
+
+  confirm_order = async (req, res) => {
+    // console.log(req.params);
+    const { orderId } = req.params;
+    try {
+      await customerOrderModel.findByIdAndUpdate(orderId, {
+        payment_status: "paid",
+        delivery_status: "processing",
+      });
+      await adminOrderModel.updateMany(
+        { orderId: new ObjectId(orderId) },
+        { payment_status: "paid", delivery_status: "processing" }
+      );
+
+      const customerOrder = await customerOrderModel.findById(orderId);
+      const adminOrder = await adminOrderModel.find({
+        orderId: new ObjectId(orderId),
+      });
+
+      const time = moment(Date.now()).format("l"); // m/d/y
+      const splitTime = time.split("/");
+      console.log("Time: ", splitTime);
+
+      await shopWalletModel.create({
+        amount: customerOrder.order_price,
+        month: splitTime[0],
+        year: splitTime[2],
+      });
+
+      for (let i = 0; i < adminOrder.length; i++) {
+        await sellerWalletModel.create({
+          sellerId: adminOrder[i].sellerId.toString(),
+          amount: adminOrder[i].order_price,
+          month: splitTime[0],
+          year: splitTime[2],
+        });
+      }
+      responseReturn(res, 200, { message: "Order confirmed" });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, { error: error.message });
     }
   };
 }
