@@ -3,6 +3,8 @@ import { responseReturn } from "../../utilities/response.js";
 import paymentAccountModel from "../../models/payment/paymentAccountModel.js";
 import Stripe from "stripe";
 import { v4 } from "uuid";
+import sellerWalletModel from "../../models/payment/sellerWalletModel.js";
+import paymentRequestModel from "../../models/payment/paymentRequests.js";
 
 class paymentControllers {
   // Initialize Stripe with your secret key
@@ -103,6 +105,76 @@ class paymentControllers {
       responseReturn(res, 500, {
         error: "Internal Server Error: Payment account could not be enabled.",
       });
+    }
+  };
+
+  // Calculate sum by iterating on the amount property.
+  sumAmount = (data) => {
+    let sum = 0;
+    for (let i = 0; i < data.length; i++) {
+      sum += data[i].amount;
+    }
+    return sum;
+  };
+
+  seller_payment_details = async (req, res) => {
+    // console.log(req.params);
+    const { sellerId } = req.params;
+    // Payments for each order for a particular seller are stored in the sellerWalletModel
+    // When a payment/withdrawal request is made, this info is stored in the paymentRequestModel
+    try {
+      // Get the completed seller's payments from the sellerWalletModel
+      const sellerPayments = await sellerWalletModel.find({ sellerId });
+
+      const pendingWithdrawals = await paymentRequestModel.find({
+        $and: [
+          {
+            sellerId: {
+              $eq: sellerId,
+            },
+          },
+          {
+            request_status: {
+              $eq: "pending",
+            },
+          },
+        ],
+      });
+
+      const successfulWithdrawals = await paymentRequestModel.find({
+        $and: [
+          {
+            sellerId: {
+              $eq: sellerId,
+            },
+          },
+          {
+            request_status: {
+              $eq: "completed",
+            },
+          },
+        ],
+      });
+
+      const pendingAmount = this.sumAmount(pendingWithdrawals);
+      const withdrawnAmount = this.sumAmount(successfulWithdrawals);
+      const totalSalesAmount = this.sumAmount(sellerPayments);
+
+      let availableAmount = 0;
+
+      if (totalSalesAmount > 0) {
+        availableAmount = totalSalesAmount - (pendingAmount + withdrawnAmount);
+      }
+      responseReturn(res, 200, {
+        totalSalesAmount,
+        pendingAmount,
+        withdrawnAmount,
+        availableAmount,
+        successfulWithdrawals,
+        pendingWithdrawals,
+      });
+    } catch (error) {
+      console.log("Error getting seller payment details: ", error.message);
     }
   };
 }
