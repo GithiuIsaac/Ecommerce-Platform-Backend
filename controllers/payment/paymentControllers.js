@@ -199,5 +199,20 @@ class paymentControllers {
       });
     }
   };
+
+  // Admin Methods
+  // Get all the pending payment requests for the admin to review
+  get_payment_requests = async (req, res) => {
+    try {
+      const paymentRequests = await paymentRequestModel.find({
+        request_status: "pending",
+      });
+      responseReturn(res, 200, { paymentRequests });
+    } catch (error) {
+      responseReturn(res, 500, {
+        error: "Internal Server Error: Could not get payment requests.",
+      });
+    }
+  };
 }
 export default new paymentControllers();
