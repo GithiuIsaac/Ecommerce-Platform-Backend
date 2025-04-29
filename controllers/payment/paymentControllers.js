@@ -5,6 +5,9 @@ import Stripe from "stripe";
 import { v4 } from "uuid";
 import sellerWalletModel from "../../models/payment/sellerWalletModel.js";
 import paymentRequestModel from "../../models/payment/paymentRequests.js";
+import mongoose from "mongoose";
+
+const { ObjectId } = mongoose.mongo;
 
 class paymentControllers {
   // Initialize Stripe with your secret key
@@ -211,6 +214,40 @@ class paymentControllers {
     } catch (error) {
       responseReturn(res, 500, {
         error: "Internal Server Error: Could not get payment requests.",
+      });
+    }
+  };
+
+  // Confirm the pending payment request
+  confirm_payment_request = async (req, res) => {
+    console.log("Confirm req body: ", req.body);
+    const { paymentId } = req.body;
+    // When the admin confirms the payment request, the request_status is updated to "completed"
+    try {
+      const paymentRequest = await paymentRequestModel.findById(paymentId);
+      const { stripeId } = await paymentAccountModel.findOne({
+        sellerId: new ObjectId(paymentRequest.sellerId),
+      });
+      console.log("stripeId: ", stripeId);
+
+      await this.stripe.transfers.create({
+        amount: paymentRequest.amount * 100,
+        currency: "usd",
+        destination: stripeId,
+      });
+
+      await paymentRequestModel.findByIdAndUpdate(paymentId, {
+        request_status: "completed",
+      });
+
+      responseReturn(res, 200, {
+        message: "Payment request confirmed successfully",
+        paymentRequest,
+      });
+    } catch (error) {
+      console.log("Error confirming payment request: ", error.message);
+      responseReturn(res, 500, {
+        error: "Internal Server Error: Payment request could not be confirmed.",
       });
     }
   };
