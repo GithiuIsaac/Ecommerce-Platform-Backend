@@ -1,10 +1,16 @@
 import { Router } from "express";
 import { authMiddleware } from "../../middleware/authMiddleware.js";
 import dashboardOrderControllers from "../../controllers/dashboard/dashboardOrderControllers.js";
+import dashboardControllers from "../../controllers/dashboard/dashboardControllers.js";
 
 const router = Router();
 
 // The authMiddleware ensures no access for unauthenticated users
+router.get(
+  "/admin/home",
+  authMiddleware,
+  dashboardControllers.get_admin_dashboard
+);
 router.get(
   "/admin/get-orders",
   authMiddleware,
