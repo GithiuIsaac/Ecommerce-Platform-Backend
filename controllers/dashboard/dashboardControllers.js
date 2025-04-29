@@ -32,7 +32,12 @@ class dashboardControllers {
       const totalSellers = await sellerModel.find({}).countDocuments();
       // console.log("Total Sellers: ", totalSellers);
 
-      const recentMessages = await adminSellerMsgModel.find({}).limit(3);
+      const recentMessages = await adminSellerMsgModel
+        .find({
+          receiverName: "Admin",
+        })
+        .limit(3)
+        .sort({ createdAt: -1 });
       // console.log("Recent Messages: ", recentMessages);
 
       const recentOrders = await customerOrderModel.find({}).limit(5);
