@@ -29,6 +29,11 @@ router.put(
 
 // Seller Routes
 router.get(
+  "/seller/home",
+  authMiddleware,
+  dashboardControllers.get_seller_dashboard
+);
+router.get(
   "/seller/get-orders/:sellerId",
   authMiddleware,
   dashboardOrderControllers.get_seller_orders
