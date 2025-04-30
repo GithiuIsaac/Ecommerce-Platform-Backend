@@ -139,7 +139,9 @@ class dashboardControllers {
         recentMessages,
         recentOrders,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 }
 export default new dashboardControllers();
