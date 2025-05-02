@@ -148,12 +148,12 @@ class dashboardControllers {
   };
 
   add_banner = async (req, res) => {
-    const form = formidable({ multiples: true })
+    const form = formidable({ multiples: true });
 
     form.parse(req, async (err, field, files) => {
-      const { productId } = field
+      const { productId } = field;
       // console.log("Product ID: ", productId)
-      const { productBanner } = files
+      const { productBanner } = files;
       // console.log("Main Banner: ", productBanner[0].filepath)
 
       cloudinary.config({
@@ -167,38 +167,103 @@ class dashboardControllers {
       // so even for single values, access the first array index
       try {
         // Retrieve the product from the product Model using the productId
-        const { slug } = await productModel.findById(productId)
-        const result = await cloudinary.uploader.upload(productBanner[0].filepath, {
-          folder: `products/banners/${slug}`,
-        });
+        const { slug } = await productModel.findById(productId);
+        const result = await cloudinary.uploader.upload(
+          productBanner[0].filepath,
+          {
+            folder: `products/banners/${slug}`,
+          }
+        );
 
         const banner = await bannerModel.create({
           productId,
           banner_image_url: result.secure_url,
-          link: slug
-        })
+          link: slug,
+        });
 
         responseReturn(res, 200, {
           banner,
-          message: "Banner added successfully"
-        })
+          message: "Banner added successfully",
+        });
       } catch (error) {
         responseReturn(res, 500, {
           error: error.message,
         });
       }
-    })
-
-  }
+    });
+  };
 
   get_banner = async (req, res) => {
-    const { productId } = req.params
+    const { productId } = req.params;
     try {
-      const banner = await bannerModel.findOne({ productId: new ObjectId(productId) })
-      responseReturn(res, 200, { banner })
+      const banner = await bannerModel.findOne({
+        productId: new ObjectId(productId),
+      });
+      responseReturn(res, 200, { banner });
     } catch (error) {
-      responseReturn(res, 500, { error: error.message })
+      responseReturn(res, 500, { error: error.message });
     }
-  }
+  };
+
+  update_banner = async (req, res) => {
+    const { bannerId } = req.params;
+    const form = formidable({ multiples: true });
+
+    form.parse(req, async (err, _, files) => {
+      // The file items have been passed into the form from the frontend as below:
+      // formData.append("productBanner", image);
+      const { productBanner } = files;
+
+      cloudinary.config({
+        cloud_name: process.env.cloud_name,
+        api_key: process.env.api_key,
+        api_secret: process.env.api_secret,
+        secure: true,
+      });
+
+      try {
+        // Retrieve the banner from the banner Model using the bannerId
+        let banner = await bannerModel.findById(bannerId);
+
+        // Replace the image in the cloudinary folder with the new image, keeping the rest of the url intact
+        let imageUrl = banner.banner_image_url.split("/");
+        let folderPath =
+          imageUrl[imageUrl.length - 4] +
+          "/" +
+          imageUrl[imageUrl.length - 3] +
+          "/" +
+          imageUrl[imageUrl.length - 2];
+
+        let imageId = banner.banner_image_url.split("/").pop().split(".")[0];
+
+        // Delete the existing image with it's cloudinary public ID
+        await cloudinary.uploader.destroy(folderPath + "/" + imageId);
+
+        // Upload the new image
+        const { secure_url } = await cloudinary.uploader.upload(
+          productBanner[0].filepath,
+          {
+            folder: folderPath,
+          }
+        );
+
+        // Update the banner_image_url in the banner Model using the bannerId
+        await bannerModel.findByIdAndUpdate(bannerId, {
+          banner_image_url: secure_url,
+        });
+
+        banner = await bannerModel.findById(bannerId);
+
+        responseReturn(res, 200, {
+          banner,
+          message: "Banner updated successfully",
+        });
+      } catch (error) {
+        responseReturn(res, 500, {
+          error: error.message,
+        });
+      }
+    });
+  };
 }
 export default new dashboardControllers();
