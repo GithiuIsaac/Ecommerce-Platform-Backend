@@ -1,5 +1,6 @@
 import productModel from "../../models/productModel.js";
 import adminOrderModel from "../../models/adminOrderModel.js";
+import bannerModel from "../../models/bannerModel.js";
 import customerOrderModel from "../../models/customerOrderModel.js";
 import shopWalletModel from "../../models/payment/shopWalletModel.js";
 import sellerModel from "../../models/sellerModel.js";
@@ -8,6 +9,8 @@ import sellerCustomerMsgModel from "../../models/chat/sellerCustomerMessages.js"
 import { responseReturn } from "../../utilities/response.js";
 import sellerWalletModel from "../../models/payment/sellerWalletModel.js";
 import mongoose from "mongoose";
+import formidable from "formidable";
+import { v2 as cloudinary } from "cloudinary";
 
 const { ObjectId } = mongoose.mongo;
 
@@ -143,5 +146,49 @@ class dashboardControllers {
       console.log(error.message);
     }
   };
+
+  add_banner = async (req, res) => {
+    const form = formidable({ multiples: true })
+
+    form.parse(req, async (err, field, files) => {
+      const { productId } = field
+      // console.log("Product ID: ", productId)
+      const { productBanner } = files
+      // console.log("Main Banner: ", productBanner[0].filepath)
+
+      cloudinary.config({
+        cloud_name: process.env.cloud_name,
+        api_key: process.env.api_key,
+        api_secret: process.env.api_secret,
+        secure: true,
+      });
+
+      // formidable returns values as arrays,
+      // so even for single values, access the first array index
+      try {
+        // Retrieve the product from the product Model using the productId
+        const { slug } = await productModel.findById(productId)
+        const result = await cloudinary.uploader.upload(productBanner[0].filepath, {
+          folder: `products/banners/${slug}`,
+        });
+
+        const banner = await bannerModel.create({
+          productId,
+          banner_image_url: result.secure_url,
+          link: slug
+        })
+
+        responseReturn(res, 200, {
+          banner,
+          message: "Banner added successfully"
+        })
+      } catch (error) {
+        responseReturn(res, 500, {
+          error: error.message,
+        });
+      }
+    })
+
+  }
 }
 export default new dashboardControllers();

@@ -51,7 +51,7 @@ router.put(
 router.post(
   "/seller/add-banner",
   authMiddleware,
-  dashboardOrderControllers.add_banner
+  dashboardControllers.add_banner
 );
 
 export default router;
