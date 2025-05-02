@@ -265,5 +265,20 @@ class dashboardControllers {
       }
     });
   };
+
+  get_banner_images = async (req, res) => {
+    try {
+      const bannerImages = await bannerModel.aggregate([
+        {
+          $sample: {
+            size: 8,
+          },
+        },
+      ]);
+      responseReturn(res, 200, { bannerImages });
+    } catch (error) {
+      responseReturn(res, 500, { error: error.message });
+    }
+  };
 }
 export default new dashboardControllers();
