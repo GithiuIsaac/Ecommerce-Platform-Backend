@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authMiddleware } from "../../middleware/authMiddleware.js";
 import homeControllers from "../../controllers/home/homeControllers.js";
+import dashboardControllers from "../../controllers/dashboard/dashboardControllers.js";
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.get(
   "/get-product-reviews/:productId",
   homeControllers.get_product_reviews
 );
+router.get("/banner-images", dashboardControllers.get_banner_images);
 
 export default router;
