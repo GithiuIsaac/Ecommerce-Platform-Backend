@@ -53,5 +53,10 @@ router.post(
   authMiddleware,
   dashboardControllers.add_banner
 );
+router.get(
+  "/seller/get-banner/:productId",
+  authMiddleware,
+  dashboardControllers.get_banner
+);
 
 export default router;
