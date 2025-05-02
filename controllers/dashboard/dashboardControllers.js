@@ -190,5 +190,15 @@ class dashboardControllers {
     })
 
   }
+
+  get_banner = async (req, res) => {
+    const { productId } = req.params
+    try {
+      const banner = await bannerModel.findOne({ productId: new ObjectId(productId) })
+      responseReturn(res, 200, { banner })
+    } catch (error) {
+      responseReturn(res, 500, { error: error.message })
+    }
+  }
 }
 export default new dashboardControllers();
