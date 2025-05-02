@@ -58,5 +58,10 @@ router.get(
   authMiddleware,
   dashboardControllers.get_banner
 );
+router.put(
+  "/seller/update-banner/:bannerId",
+  authMiddleware,
+  dashboardControllers.update_banner
+);
 
 export default router;
