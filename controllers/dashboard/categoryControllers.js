@@ -115,5 +115,58 @@ class categoryControllers {
       console.log(error.message);
     }
   };
+
+  update_category = async (req, res) => {
+    const { categoryId } = req.params;
+    const form = formidable();
+    form.parse(req, async (err, fields, files) => {
+      if (err) {
+        responseReturn(res, 404, { error: "Sonething went wrong" });
+      } else {
+        let { category_name } = fields;
+        let { image } = files;
+        category_name = category_name[0].trim();
+        const slug = category_name.split(" ").join("-").toLowerCase();
+
+        try {
+          let result = null;
+          const updateData = {
+            category_name,
+            slug,
+          };
+          if (image) {
+            cloudinary.config({
+              cloud_name: process.env.cloud_name,
+              api_key: process.env.api_key,
+              api_secret: process.env.api_secret,
+              secure: true,
+            });
+            // console.log("Image present, uploading to cloudinary...");
+            result = await cloudinary.uploader.upload(image[0].filepath, {
+              folder: "categories",
+            });
+          }
+
+          if (result) {
+            updateData.image = result.secure_url;
+          }
+
+          const category = await categoryModel.findByIdAndUpdate(
+            categoryId,
+            updateData,
+            { new: true }
+          );
+
+          responseReturn(res, 201, {
+            message: "Category updated successfully",
+            category,
+          });
+        } catch (error) {
+          // console.log(error.message);
+          responseReturn(res, 500, { error: "Internal Server Error" });
+        }
+      }
+    });
+  };
 }
 export default new categoryControllers();
