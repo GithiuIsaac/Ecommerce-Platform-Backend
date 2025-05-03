@@ -19,5 +19,10 @@ router.post(
   authMiddleware,
   authControllers.add_user_profile
 );
+router.post(
+  "/change-password",
+  authMiddleware,
+  authControllers.change_password
+);
 
 export default router;
