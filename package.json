@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "Ecommerce Platform Backend using Node.",
   "main": "index.js",
+  "engines": {
+    "node": "23"
+  },
   "scripts": {
-    "server": "nodemon server.js"
+    "server": "nodemon server.js",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
