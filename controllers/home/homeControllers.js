@@ -2,7 +2,7 @@ import productModel from "../../models/productModel.js";
 import categoryModel from "../../models/categoryModel.js";
 import { responseReturn } from "../../utilities/response.js";
 import queryProducts from "../../utilities/queryProducts.js";
-import reviewModel from "../../models/ReviewModel.js";
+import reviewModel from "../../models/reviewModel.js";
 import moment from "moment";
 import mongoose from "mongoose";
 
