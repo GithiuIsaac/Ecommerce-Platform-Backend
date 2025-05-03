@@ -27,14 +27,28 @@ dbConnect();
 const server = http.createServer(app);
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:3001"],
+    // origin: ["http://localhost:5173", "http://localhost:3001"],
+    origin:
+      process.env.mode === "production"
+        ? [
+            process.env.client_customer_production_url,
+            process.env.client_admin_production_url,
+          ]
+        : ["http://localhost:5173", "http://localhost:3001"],
     credentials: true,
   })
 );
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    // origin: "*",
+    origin:
+      process.env.mode === "production"
+        ? [
+            process.env.client_customer_production_url,
+            process.env.client_admin_production_url,
+          ]
+        : ["http://localhost:5173", "http://localhost:3001"],
     credentials: true,
   },
 });
