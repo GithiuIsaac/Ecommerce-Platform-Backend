@@ -12,5 +12,9 @@ router.put(
   authMiddleware,
   categoryControllers.update_category
 );
+router.delete(
+  "/delete-category/:categoryId",
+  categoryControllers.delete_category
+);
 
 export default router;

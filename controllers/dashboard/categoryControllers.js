@@ -168,5 +168,39 @@ class categoryControllers {
       }
     });
   };
+
+  delete_category = async (req, res) => {
+    const { categoryId } = req.params;
+
+    try {
+      const category = await categoryModel.findByIdAndDelete(categoryId);
+      if (!category) {
+        console.log(`Category with id ${categoryId} not found`);
+        return responseReturn(res, 404, { error: "Category not found" });
+      }
+
+      // Delete the image from cloudinary
+      if (category.image) {
+        const imageId = category.image.split("/").pop().split(".")[0];
+
+        cloudinary.config({
+          cloud_name: process.env.cloud_name,
+          api_key: process.env.api_key,
+          api_secret: process.env.api_secret,
+          secure: true,
+        });
+
+        // Delete the existing image with it's cloudinary public ID
+        await cloudinary.uploader.destroy(`categories/${imageId}`);
+      }
+
+      responseReturn(res, 200, {
+        message: "Category deleted successfully",
+      });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, { error: "Internal Server Error" });
+    }
+  };
 }
 export default new categoryControllers();
