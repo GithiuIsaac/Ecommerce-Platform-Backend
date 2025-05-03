@@ -49,6 +49,8 @@ const io = new Server(server, {
         ? [
             process.env.client_customer_production_url,
             process.env.client_admin_production_url,
+            "http://localhost:5173",
+            "http://localhost:3001",
           ]
         : ["http://localhost:5173", "http://localhost:3001"],
     credentials: true,
