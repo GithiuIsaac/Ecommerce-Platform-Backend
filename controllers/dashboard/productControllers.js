@@ -87,11 +87,11 @@ class productControllers {
   };
 
   update_product = async (req, res) => {
-    console.log(req.body);
     let {
       productId,
       product_name,
       description,
+      category,
       stock,
       price,
       discount,
@@ -106,6 +106,7 @@ class productControllers {
         product_name,
         slug,
         description,
+        category,
         stock: parseInt(stock),
         price: parseInt(price),
         discount,
