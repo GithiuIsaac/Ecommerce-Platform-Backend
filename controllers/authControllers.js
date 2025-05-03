@@ -238,6 +238,39 @@ class authControllers {
     }
   };
 
+  change_password = async (req, res) => {
+    const { seller_email, current_password, new_password } = req.body;
+
+    try {
+      const user = await sellerModel
+        .findOne({ email: seller_email })
+        .select("+password");
+      if (!user) {
+        return responseReturn(res, 404, { error: "Email not found" });
+      } else {
+        // Compare the entered password with the stored password for the user
+        const isPasswordMatch = await bcrypt.compare(
+          current_password,
+          user.password
+        );
+        if (!isPasswordMatch) {
+          return responseReturn(res, 401, {
+            error: "Current password is incorrect",
+          });
+        } else {
+          user.password = await bcrypt.hash(new_password, 10);
+          await user.save();
+          responseReturn(res, 200, {
+            message: "Password changed successfully",
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 500, { error: "Internal Server Error" });
+    }
+  };
+
   logout = async (req, res) => {
     try {
       // Clear the accessToken cookie
