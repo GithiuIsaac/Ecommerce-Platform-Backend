@@ -12,12 +12,7 @@ const { ObjectId } = mongoose.mongo;
 
 class orderControllers {
   // Initialize Stripe with your secret key
-  // stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-  constructor() {
-    this.stripe = new Stripe(
-      "Example key"
-    );
-  }
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   paymentCheck = async (id) => {
     try {

@@ -11,12 +11,7 @@ const { ObjectId } = mongoose.mongo;
 
 class paymentControllers {
   // Initialize Stripe with your secret key
-  // stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-  constructor() {
-    this.stripe = new Stripe(
-      "Example Key"
-    );
-  }
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   connect_payment_account = async (req, res) => {
     console.log("Connect Payment Account for: ", req.id);
