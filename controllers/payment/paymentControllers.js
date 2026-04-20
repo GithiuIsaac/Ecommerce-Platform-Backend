@@ -14,7 +14,7 @@ class paymentControllers {
   // stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   constructor() {
     this.stripe = new Stripe(
-      "sk_test_51RHEBHQ6RIDGLuyfki7mTXNBiP164Wveh181QdW3C7WGJvmF2SwSBYqMDn6oSwp4ivUyfM2UIbVNo2QE0OtxeAWj00x3ObUHqn"
+      "Example Key"
     );
   }
 
